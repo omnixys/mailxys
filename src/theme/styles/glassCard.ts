@@ -19,7 +19,10 @@ export const glassCard = (theme: Theme): SxProps<Theme> => ({
   },
 });
 
-export const gradientBorder = (theme: Theme, color?: string): SxProps<Theme> => ({
+export const gradientBorder = (
+  theme: Theme,
+  color?: string,
+): SxProps<Theme> => ({
   position: "relative",
   background: theme.palette.background.paper,
   border: "none",
@@ -32,7 +35,8 @@ export const gradientBorder = (theme: Theme, color?: string): SxProps<Theme> => 
     background:
       color ||
       `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+    WebkitMask:
+      "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
     WebkitMaskComposite: "xor",
     maskComposite: "exclude",
     pointerEvents: "none",

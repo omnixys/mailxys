@@ -1,8 +1,8 @@
 "use client";
 
-import { useServerInsertedHTML } from "next/navigation";
-import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
+import { CacheProvider } from "@emotion/react";
+import { useServerInsertedHTML } from "next/navigation";
 import { useState } from "react";
 
 export default function ThemeRegistry({
@@ -20,13 +20,7 @@ export default function ThemeRegistry({
   });
 
   useServerInsertedHTML(() => {
-    return (
-      <meta
-        name="emotion-cache"
-        content=""
-        suppressHydrationWarning
-      />
-    );
+    return <meta name="emotion-cache" content="" suppressHydrationWarning />;
   });
 
   return <CacheProvider value={cache}>{children}</CacheProvider>;

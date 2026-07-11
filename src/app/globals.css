@@ -52,13 +52,13 @@ select {
 }
 
 :focus-visible {
-  outline: 2px solid #6A4BBC;
+  outline: 2px solid #6a4bbc;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 ::selection {
-  background-color: rgba(106, 75, 188, 0.20);
+  background-color: rgba(106, 75, 188, 0.2);
   color: inherit;
 }
 
@@ -94,8 +94,8 @@ select {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
   }
 }

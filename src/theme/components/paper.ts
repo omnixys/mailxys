@@ -1,5 +1,4 @@
 import type { Theme } from "@mui/material/styles";
-import { alpha } from "@mui/material/styles";
 
 export const paperComponents = (theme: Theme) => ({
   styleOverrides: {

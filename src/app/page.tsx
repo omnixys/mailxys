@@ -1,11 +1,8 @@
 "use client";
 
-import { Box, Typography, Button } from "@mui/material";
+import { DarkModeRounded, LightModeRounded } from "@mui/icons-material";
+import { Box, Button, Typography } from "@mui/material";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
-import {
-  LightModeRounded,
-  DarkModeRounded,
-} from "@mui/icons-material";
 
 export default function Home() {
   const { mode, toggleMode } = useThemeMode();
@@ -30,7 +27,9 @@ export default function Home() {
       </Typography>
       <Button
         variant="outlined"
-        startIcon={mode === "light" ? <DarkModeRounded /> : <LightModeRounded />}
+        startIcon={
+          mode === "light" ? <DarkModeRounded /> : <LightModeRounded />
+        }
         onClick={toggleMode}
       >
         Switch to {mode === "light" ? "Dark" : "Light"} Mode

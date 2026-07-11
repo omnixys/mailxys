@@ -1,10 +1,11 @@
 import type { Theme } from "@mui/material/styles";
+import type { TextFieldProps } from "@mui/material/TextField";
 
 export const textFieldComponents = (_theme: Theme) => ({
   defaultProps: {
-    variant: "outlined",
-    size: "small",
-  },
+    variant: "outlined" as const,
+    size: "small" as const,
+  } satisfies Partial<TextFieldProps>,
   styleOverrides: {
     root: {
       "& .MuiOutlinedInput-root": {

@@ -1,8 +1,8 @@
 export { createMailTheme } from "./createMailTheme";
 export type {
-  ColorScale,
   ColorPreset,
+  ColorScale,
   OmnixysExtendedPalette,
-  OmnixysVisualTokens,
   OmnixysPresetExtended,
+  OmnixysVisualTokens,
 } from "./paletteTypes";

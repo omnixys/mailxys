@@ -1,9 +1,16 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
-import { createMailTheme } from "@/theme";
 import type { PaletteMode } from "@mui/material";
+import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { createMailTheme } from "@/theme";
 
 const STORAGE_KEY = "omnixys.theme.mode";
 

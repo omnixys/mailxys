@@ -1,4 +1,7 @@
-import type { OmnixysExtendedPalette, OmnixysPresetExtended } from "@/theme/paletteTypes";
+import type {
+  OmnixysExtendedPalette,
+  OmnixysPresetExtended,
+} from "@/theme/paletteTypes";
 
 declare module "@mui/material/styles" {
   interface Shape {

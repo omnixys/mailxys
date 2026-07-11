@@ -12,17 +12,11 @@ export function buildExtendedPalette(
     surface: {
       level1: omni.backgroundDefault,
       level2: omni.backgroundPaper,
-      level3: isDark
-        ? alpha("#FFFFFF", 0.04)
-        : alpha("#000000", 0.03),
+      level3: isDark ? alpha("#FFFFFF", 0.04) : alpha("#000000", 0.03),
     },
     border: {
-      subtle: isDark
-        ? alpha("#FFFFFF", 0.08)
-        : alpha("#000000", 0.08),
-      strong: isDark
-        ? alpha("#FFFFFF", 0.16)
-        : alpha("#000000", 0.16),
+      subtle: isDark ? alpha("#FFFFFF", 0.08) : alpha("#000000", 0.08),
+      strong: isDark ? alpha("#FFFFFF", 0.16) : alpha("#000000", 0.16),
     },
   };
 }

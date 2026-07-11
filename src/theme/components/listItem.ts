@@ -19,8 +19,8 @@ export const listItemComponents = (theme: Theme) => ({
       "&.Mui-selected": {
         backgroundColor:
           theme.palette.mode === "dark"
-            ? alpha("#6A4BBC", 0.20)
-            : alpha("#6A4BBC", 0.10),
+            ? alpha("#6A4BBC", 0.2)
+            : alpha("#6A4BBC", 0.1),
         color: theme.palette.primary.main,
         fontWeight: 600,
         "&:hover": {

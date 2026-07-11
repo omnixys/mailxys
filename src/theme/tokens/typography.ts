@@ -1,7 +1,8 @@
 export const typographyTokens = {
   fontFamily:
     "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif",
-  fontFamilyMono: "'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace",
+  fontFamilyMono:
+    "'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace",
 
   fontWeight: {
     regular: 400,

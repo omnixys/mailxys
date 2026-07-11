@@ -1,11 +1,14 @@
-import { createTheme, type PaletteMode } from "@mui/material";
+import { createTheme, type PaletteMode, type Theme } from "@mui/material";
 import { buildExtendedPalette } from "@/theme/buildExtendedPalette";
+import { createComponentOverrides } from "@/theme/components";
+import { layout } from "@/theme/tokens/breakpoints";
 import { omnixysPreset } from "@/theme/tokens/colors";
-import { typographyTokens } from "@/theme/tokens/typography";
 import { shapeDefaults } from "@/theme/tokens/radius";
 import { createShadows } from "@/theme/tokens/shadows";
-import { layout } from "@/theme/tokens/breakpoints";
-import { createComponentOverrides } from "@/theme/components";
+import { typographyTokens } from "@/theme/tokens/typography";
+
+// biome-ignore lint/suspicious/noExplicitAny: MUI Theme needs to be extended with custom properties
+type ExtendedTheme = Theme & Record<string, any>;
 
 export const createMailTheme = (mode: PaletteMode) => {
   const omni = omnixysPreset[mode];
@@ -20,22 +23,17 @@ export const createMailTheme = (mode: PaletteMode) => {
       warning: { main: omni.warning },
       success: { main: omni.success },
       info: { main: omni.info },
-
       background: {
         default: omni.backgroundDefault,
         paper: omni.backgroundPaper,
       },
-
       text: {
         primary: omni.textPrimary,
         secondary: omni.textSecondary,
       },
-
       divider: extended.border.subtle,
-
-      omnixys,
-      extended,
-    },
+      // biome-ignore lint/suspicious/noExplicitAny: Extended palette not in MUI types
+    } as any,
 
     typography: {
       fontFamily: typographyTokens.fontFamily,
@@ -114,46 +112,46 @@ export const createMailTheme = (mode: PaletteMode) => {
       ...shapeDefaults,
     },
 
-    shadows: createShadows(mode) as any,
+    shadows: createShadows(mode) as unknown as Theme["shadows"],
 
     spacing: 8,
-
-    layout: {
-      ...layout,
-    } as any,
-
-    mail: {
-      sidebar: layout.sidebar,
-      header: layout.header,
-    },
-
-    omnixys: {
-      visual: {
-        background: {
-          base: omni.backgroundDefault,
-        },
-        orb: {
-          gradient: `radial-gradient(circle, ${omni.primary} 0%, transparent 70%)`,
-          glow: omni.primary,
-        },
-        rays: {
-          gradient: `linear-gradient(135deg, ${omni.primary} 0%, transparent 100%)`,
-          blur: "80px",
-        },
-        shader: {
-          brightness: mode === "dark" ? 0.8 : 1.0,
-          colorA: [106, 75, 188] as const,
-          colorB: [139, 92, 246] as const,
-        },
-        logo: {
-          src: "/logo.svg",
-          glow: `0 0 20px ${omni.primary}40`,
-        },
-      },
-    },
   });
 
-  baseTheme.components = createComponentOverrides(baseTheme);
+  const theme = baseTheme as ExtendedTheme;
 
-  return baseTheme;
+  theme.layout = layout;
+  theme.mail = {
+    sidebar: layout.sidebar,
+    header: layout.header,
+  };
+  theme.omnixys = {
+    visual: {
+      background: {
+        base: omni.backgroundDefault,
+      },
+      orb: {
+        gradient: `radial-gradient(circle, ${omni.primary} 0%, transparent 70%)`,
+        glow: omni.primary,
+      },
+      rays: {
+        gradient: `linear-gradient(135deg, ${omni.primary} 0%, transparent 100%)`,
+        blur: "80px",
+      },
+      shader: {
+        brightness: mode === "dark" ? 0.8 : 1.0,
+        colorA: [106, 75, 188] as const,
+        colorB: [139, 92, 246] as const,
+      },
+      logo: {
+        src: "/logo.svg",
+        glow: `0 0 20px ${omni.primary}40`,
+      },
+    },
+  };
+  theme.palette.extended = extended;
+  theme.palette.omnixys = omnixysPreset;
+
+  theme.components = createComponentOverrides(theme);
+
+  return theme as Theme;
 };
