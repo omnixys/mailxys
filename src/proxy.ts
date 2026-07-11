@@ -9,18 +9,40 @@ function isLocale(value: string | undefined): value is Locale {
   return SUPPORTED_LOCALES.includes(value as Locale);
 }
 
+
 function detectLocale(header: string | null): Locale {
-  if (!header) return DEFAULT_LOCALE;
+  if (!header) {
+    return DEFAULT_LOCALE;
+  }
 
-  const languages = header
+  const accepted = header
     .split(",")
-    .map((l) => l.split(";")[0].trim().toLowerCase());
+    .map((entry) => (entry.split(";").at(0) ?? "").trim().toLowerCase());
 
-  for (const lang of languages) {
-    for (const supported of SUPPORTED_LOCALES) {
-      if (lang.startsWith(supported.toLowerCase().split("-")[0])) {
-        return supported;
-      }
+  for (const candidate of accepted) {
+    // 1. Exakter Match
+    const exact = SUPPORTED_LOCALES.find(
+      (locale) => locale.toLowerCase() === candidate,
+    );
+
+    if (exact) {
+      return exact;
+    }
+
+    // 2. Sprache matchen (de, en, fr, pt, zh, ...)
+    const candidateLanguage = candidate.split("-").at(0);
+
+    if (!candidateLanguage) {
+      continue;
+    }
+
+    const languageMatch = SUPPORTED_LOCALES.find((locale) => {
+      const language = locale.toLowerCase().split("-").at(0);
+      return language === candidateLanguage;
+    });
+
+    if (languageMatch) {
+      return languageMatch;
     }
   }
 
