@@ -1,4 +1,6 @@
 export { ActivityCard } from "./ActivityCard";
+export type { Column } from "./DataTable";
+export { DataTable } from "./DataTable";
 export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
 export { KpiCard } from "./KpiCard";
