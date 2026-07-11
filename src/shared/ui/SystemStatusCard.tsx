@@ -3,6 +3,7 @@
 import { CheckCircleRounded, WarningRounded } from "@mui/icons-material";
 import { Box, Chip, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 interface Service {
   name: string;
@@ -15,18 +16,21 @@ interface SystemStatusCardProps {
   services: Service[];
 }
 
-const statusConfig = {
-  operational: {
-    color: "#22C55E" as const,
-    bg: "#22C55E15",
-    label: "Operational",
-  },
-  degraded: { color: "#F59E0B" as const, bg: "#F59E0B15", label: "Degraded" },
-  outage: { color: "#EF4444" as const, bg: "#EF444415", label: "Outage" },
-};
+const statusColorMap = {
+  operational: { color: "#22C55E" as const, bg: "#22C55E15" },
+  degraded: { color: "#F59E0B" as const, bg: "#F59E0B15" },
+  outage: { color: "#EF4444" as const, bg: "#EF444415" },
+} as const;
+
+const statusKeyMap = {
+  operational: "statusOperational",
+  degraded: "statusDegraded",
+  outage: "statusOutage",
+} as const;
 
 export function SystemStatusCard({ services }: SystemStatusCardProps) {
   const theme = useTheme();
+  const t = useTypedTranslations("common");
 
   return (
     <motion.div
@@ -50,12 +54,12 @@ export function SystemStatusCard({ services }: SystemStatusCardProps) {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            System Status
+            {t("systemStatus")}
           </Typography>
         </Box>
         <Box sx={{ p: 0 }}>
           {services.map((service, index) => {
-            const config = statusConfig[service.status];
+            const config = statusColorMap[service.status];
             return (
               <Box
                 key={service.name}
@@ -106,7 +110,7 @@ export function SystemStatusCard({ services }: SystemStatusCardProps) {
                     {service.uptime}%
                   </Typography>
                   <Chip
-                    label={config.label}
+                    label={t(statusKeyMap[service.status] as never)}
                     size="small"
                     sx={{
                       height: 22,

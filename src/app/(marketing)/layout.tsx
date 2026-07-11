@@ -2,6 +2,7 @@
 
 import { Box, useTheme } from "@mui/material";
 import Link from "next/link";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 export default function MarketingLayout({
   children,
@@ -9,6 +10,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   const theme = useTheme();
+  const t = useTypedTranslations("marketing");
 
   return (
     <Box
@@ -58,7 +60,7 @@ export default function MarketingLayout({
                 letterSpacing: "-0.02em",
               }}
             >
-              Omnixys Mail
+              {t("omnixysMail")}
             </Box>
           </Box>
         </Link>
@@ -72,7 +74,7 @@ export default function MarketingLayout({
               fontWeight: 500,
             }}
           >
-            Sign in
+            {t("signIn")}
           </Link>
         </Box>
       </Box>

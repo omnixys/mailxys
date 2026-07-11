@@ -9,10 +9,12 @@ import { MessageDetail } from "@/features/mail/components/MessageDetail";
 import { MessageList } from "@/features/mail/components/MessageList";
 import { mockEmails, mockMailboxes } from "@/features/mail/constants/mockData";
 import { useMailStore } from "@/features/mail/store/useMailStore";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 export default function InboxPage() {
   const theme = useTheme();
   const { setMailboxes, setEmails } = useMailStore();
+  const _t = useTypedTranslations("mail");
 
   useEffect(() => {
     setMailboxes(mockMailboxes);

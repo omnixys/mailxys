@@ -30,5 +30,21 @@
   "messageSent": "Nachricht gesendet",
   "moveToInbox": "In Posteingang verschieben",
   "markAsRead": "Als gelesen markieren",
-  "markAsUnread": "Als ungelesen markieren"
+  "markAsUnread": "Als ungelesen markieren",
+  "folderMail": "Postfach",
+  "searchMailPlaceholder": "E-Mails suchen...",
+  "noMessagesFound": "Keine Nachrichten gefunden",
+  "unknownSender": "Unbekannt",
+  "draftSaved": "Entwurf automatisch gespeichert",
+  "chooseConversation": "Wählen Sie ein Gespräch aus der Liste",
+  "noContent": "Kein Inhalt verfügbar.",
+  "toLabel": "An:",
+  "ccLabel": "Cc:",
+  "flagged": "Markiert",
+  "archiveDesc": "Archivierte E-Mails werden hier gespeichert. JMAP-Integration kommt bald.",
+  "spamDesc": "Spam-Nachrichten werden hier gefiltert. JMAP-Integration kommt bald.",
+  "sentDesc": "Alle gesendeten E-Mails anzeigen. JMAP-Integration kommt bald.",
+  "draftsDesc": "Ihre Entwürfe werden hier angezeigt. JMAP-Integration kommt bald.",
+  "composeDesc": "Neue E-Mails schreiben und senden. E-Mail-Bearbeitung kommt bald.",
+  "trashDesc": "Gelöschte E-Mails werden hierhin verschoben. JMAP-Integration kommt bald."
 }

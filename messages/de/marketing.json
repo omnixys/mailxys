@@ -29,5 +29,6 @@
   "sendMagicLink": "Magic Link senden",
   "protectedBy": "Geschützt durch Keycloak Identity Provider",
   "omnixysMail": "Omnixys Mail",
-  "enterpriseWebmail": "Enterprise Webmail powered by Stalwart"
+  "enterpriseWebmail": "Enterprise Webmail powered by Stalwart",
+  "footer": "Omnixys Mail — Betrieben von Stalwart Mail Server v0.16.12"
 }

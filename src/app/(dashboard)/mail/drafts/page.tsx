@@ -1,11 +1,15 @@
+"use client";
+
 import { DraftsRounded } from "@mui/icons-material";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import PlaceholderPage from "../PlaceholderPage";
 
 export default function DraftsPage() {
+  const t = useTypedTranslations("mail");
   return (
     <PlaceholderPage
-      title="Drafts"
-      description="Your draft emails will appear here. JMAP integration coming soon."
+      title={t("draftMessages")}
+      description={t("draftsDesc")}
       icon={<DraftsRounded sx={{ fontSize: 32 }} />}
     />
   );

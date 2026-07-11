@@ -19,6 +19,7 @@ import {
   mockUsers,
 } from "@/features/chat/constants/mockData";
 import type { ChatChannel, ChatMessage, ChatUser } from "@/features/chat/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 function getInitials(name: string): string {
   return name
@@ -53,6 +54,7 @@ function StatusDot({ status }: { status: ChatUser["status"] }) {
 }
 
 export default function ChatPage() {
+  const t = useTypedTranslations("chat");
   const theme = useTheme();
   const [selectedChannelId, setSelectedChannelId] = useState("ch1");
 
@@ -65,6 +67,12 @@ export default function ChatPage() {
 
   const getUserById = (id: string): ChatUser =>
     mockUsers.find((u) => u.id === id) as ChatUser;
+
+  const statusLabels: Record<ChatUser["status"], string> = {
+    online: t("online"),
+    busy: t("busy"),
+    offline: t("offline"),
+  };
 
   return (
     <Box
@@ -90,7 +98,7 @@ export default function ChatPage() {
       >
         <Box sx={{ px: 2.5, py: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Channels
+            {t("channels")}
           </Typography>
         </Box>
         <Box sx={{ flex: 1, overflowY: "auto", px: 1.5 }}>
@@ -185,7 +193,7 @@ export default function ChatPage() {
             {selectedChannel.name}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-            {selectedChannel.memberCount} members
+            {selectedChannel.memberCount} {t("members")}
           </Typography>
         </Box>
 
@@ -274,7 +282,7 @@ export default function ChatPage() {
             }}
           >
             <InputBase
-              placeholder={`Message #${selectedChannel.name}`}
+              placeholder={t("typeMessage")}
               sx={{ flex: 1, fontSize: 14 }}
             />
             <IconButton
@@ -305,7 +313,7 @@ export default function ChatPage() {
       >
         <Box sx={{ px: 2.5, py: 2 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-            Members — {mockUsers.length}
+            {t("members")} — {mockUsers.length}
           </Typography>
         </Box>
         <Box sx={{ flex: 1, overflowY: "auto", px: 1.5 }}>
@@ -324,7 +332,7 @@ export default function ChatPage() {
                     color: theme.palette.text.secondary,
                   }}
                 >
-                  {status} — {usersInStatus.length}
+                  {statusLabels[status]} — {usersInStatus.length}
                 </Typography>
                 {usersInStatus.map((user) => (
                   <Box

@@ -81,5 +81,21 @@
   "deliveryFailed": "Delivery failed",
   "bounceMessage": "Bounce notification",
   "noSearchResults": "No emails match your search",
-  "searchHint": "Try adjusting your search terms"
+  "searchHint": "Try adjusting your search terms",
+  "folderMail": "Mail",
+  "searchMailPlaceholder": "Search mail...",
+  "noMessagesFound": "No messages found",
+  "unknownSender": "Unknown",
+  "draftSaved": "Draft auto-saved",
+  "chooseConversation": "Choose a conversation from the list",
+  "noContent": "No content available.",
+  "toLabel": "To:",
+  "ccLabel": "Cc:",
+  "flagged": "Flagged",
+  "archiveDesc": "Archived emails are stored here. JMAP integration coming soon.",
+  "spamDesc": "Spam messages are filtered here. JMAP integration coming soon.",
+  "sentDesc": "View all emails you have sent. JMAP integration coming soon.",
+  "draftsDesc": "Your draft emails will appear here. JMAP integration coming soon.",
+  "composeDesc": "Write and send new emails. Email composition coming soon.",
+  "trashDesc": "Deleted emails are moved here. JMAP integration coming soon."
 }

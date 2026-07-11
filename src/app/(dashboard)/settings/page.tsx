@@ -23,9 +23,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
 
 export default function SettingsPage() {
+  const t = useTypedTranslations("settings");
   const theme = useTheme();
   const { mode, toggleMode } = useThemeMode();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -38,7 +40,7 @@ export default function SettingsPage() {
         variant="h4"
         sx={{ fontWeight: 800, mb: 3, letterSpacing: "-0.02em" }}
       >
-        Settings
+        {t("title")}
       </Typography>
 
       {/* Profile Section */}
@@ -67,7 +69,7 @@ export default function SettingsPage() {
             </Box>
           </Box>
           <Button variant="outlined" size="small">
-            Edit Profile
+            {t("editProfile")}
           </Button>
         </CardContent>
       </Card>
@@ -78,7 +80,7 @@ export default function SettingsPage() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
             <PaletteRounded sx={{ color: "primary.main" }} />
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Appearance
+              {t("appearance")}
             </Typography>
           </Box>
           <Box
@@ -93,12 +95,10 @@ export default function SettingsPage() {
               {mode === "dark" ? <DarkModeRounded /> : <LightModeRounded />}
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  Dark Mode
+                  {t("darkMode")}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {mode === "dark"
-                    ? "Currently using dark theme"
-                    : "Currently using light theme"}
+                  {mode === "dark" ? t("currentlyDark") : t("currentlyLight")}
                 </Typography>
               </Box>
             </Box>
@@ -116,7 +116,7 @@ export default function SettingsPage() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <LanguageRounded />
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Language
+                {t("language")}
               </Typography>
             </Box>
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -140,7 +140,7 @@ export default function SettingsPage() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
             <NotificationsRounded sx={{ color: "primary.main" }} />
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Notifications
+              {t("notifications")}
             </Typography>
           </Box>
           <Box
@@ -153,10 +153,10 @@ export default function SettingsPage() {
           >
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Push Notifications
+                {t("pushNotifications")}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Receive browser notifications for new emails
+                {t("pushNotificationsDesc")}
               </Typography>
             </Box>
             <Switch
@@ -175,10 +175,10 @@ export default function SettingsPage() {
           >
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Email Digest
+                {t("emailDigest")}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                How often to receive summary emails
+                {t("emailDigestDesc")}
               </Typography>
             </Box>
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -188,10 +188,10 @@ export default function SettingsPage() {
                 variant="outlined"
                 size="small"
               >
-                <MenuItem value="realtime">Real-time</MenuItem>
-                <MenuItem value="daily">Daily</MenuItem>
-                <MenuItem value="weekly">Weekly</MenuItem>
-                <MenuItem value="never">Never</MenuItem>
+                <MenuItem value="realtime">{t("realtime")}</MenuItem>
+                <MenuItem value="daily">{t("daily")}</MenuItem>
+                <MenuItem value="weekly">{t("weekly")}</MenuItem>
+                <MenuItem value="never">{t("never")}</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -204,7 +204,7 @@ export default function SettingsPage() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
             <SecurityRounded sx={{ color: "primary.main" }} />
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Security
+              {t("security")}
             </Typography>
           </Box>
           <Box
@@ -217,14 +217,14 @@ export default function SettingsPage() {
           >
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Two-Factor Authentication
+                {t("twoFactorAuth")}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Add an extra layer of security to your account
+                {t("twoFactorAuthDesc")}
               </Typography>
             </Box>
             <Button variant="outlined" size="small">
-              Enable 2FA
+              {t("enable2fa")}
             </Button>
           </Box>
           <Divider sx={{ my: 1 }} />
@@ -238,14 +238,14 @@ export default function SettingsPage() {
           >
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Active Sessions
+                {t("activeSessions")}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Manage your logged-in devices
+                {t("activeSessionsDesc")}
               </Typography>
             </Box>
             <Button variant="outlined" size="small">
-              View Sessions
+              {t("viewSessions")}
             </Button>
           </Box>
           <Divider sx={{ my: 1 }} />
@@ -262,14 +262,14 @@ export default function SettingsPage() {
                 variant="body2"
                 sx={{ fontWeight: 500, color: "error.main" }}
               >
-                Delete Account
+                {t("deleteAccount")}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Permanently delete your account and all data
+                {t("deleteAccountDesc")}
               </Typography>
             </Box>
             <Button variant="outlined" size="small" color="error">
-              Delete
+              {t("delete")}
             </Button>
           </Box>
         </CardContent>

@@ -21,6 +21,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
@@ -94,6 +95,7 @@ const permissionColorMap: Record<string, string> = {
 
 export default function RolesPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [roles, setRoles] = useState(mockRoles);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -117,7 +119,7 @@ export default function RolesPage() {
   const columns: Column<MockRole>[] = [
     {
       id: "name",
-      label: "Name",
+      label: t("roleName"),
       sortable: true,
       accessor: (row) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -149,7 +151,7 @@ export default function RolesPage() {
     },
     {
       id: "description",
-      label: "Description",
+      label: t("description"),
       sortable: true,
       accessor: (row) => (
         <Typography variant="body2" sx={{ fontSize: "0.8125rem" }}>
@@ -159,7 +161,7 @@ export default function RolesPage() {
     },
     {
       id: "permissions",
-      label: "Permissions",
+      label: t("permissions"),
       accessor: (row) => (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
           {row.permissions.map((perm) => (
@@ -182,12 +184,12 @@ export default function RolesPage() {
     },
     {
       id: "users",
-      label: "Users",
+      label: t("users"),
       sortable: true,
       sortAccessor: (row) => row.users,
       accessor: (row) => (
         <Chip
-          label={`${row.users} users`}
+          label={t("usersCount", { count: row.users })}
           size="small"
           sx={{
             height: 22,
@@ -215,18 +217,18 @@ export default function RolesPage() {
   return (
     <Box>
       <SectionHeader
-        title="Roles"
-        description={`${roles.length} roles configured`}
+        title={t("rolesTitle")}
+        description={t("rolesCount", { count: roles.length })}
         action={
           <Button startIcon={<AddRounded />} variant="contained" size="small">
-            Add Role
+            {t("addRole")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={roles}
-        searchPlaceholder="Search roles..."
+        searchPlaceholder={t("searchRoles")}
         searchAccessor={(row) =>
           `${row.name} ${row.description} ${row.permissions.join(" ")}`
         }
@@ -242,7 +244,7 @@ export default function RolesPage() {
           <ListItemIcon>
             <EditRounded sx={{ fontSize: "1.125rem" }} />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t("edit")}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -253,7 +255,7 @@ export default function RolesPage() {
           <ListItemIcon>
             <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t("delete")}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

@@ -31,5 +31,9 @@
   "totalMailboxes": "Total Mailboxes",
   "bandwidth": "Bandwidth",
   "errorRate": "Error Rate",
-  "noRecentActivity": "No recent activity"
+  "noRecentActivity": "No recent activity",
+  "totalEmails": "Total Emails",
+  "last14Days": "Last 14 days",
+  "received": "Received",
+  "sentLegend": "Sent"
 }

@@ -25,11 +25,13 @@ import {
 import { useState } from "react";
 import { mockDomains } from "@/features/admin/constants/mockData";
 import type { StalwartDomain } from "@/features/admin/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function DomainsPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [domains, setDomains] = useState(mockDomains);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -66,7 +68,7 @@ export default function DomainsPage() {
   const columns: Column<StalwartDomain>[] = [
     {
       id: "domain",
-      label: "Domain",
+      label: t("domain"),
       sortable: true,
       accessor: (row) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -108,7 +110,7 @@ export default function DomainsPage() {
     },
     {
       id: "plan",
-      label: "Plan",
+      label: t("plan"),
       sortable: true,
       sortAccessor: (row) => row.plan ?? "",
       accessor: (row) => (
@@ -127,7 +129,7 @@ export default function DomainsPage() {
     },
     {
       id: "maxUsers",
-      label: "Users",
+      label: t("users"),
       sortable: true,
       sortAccessor: (row) => row.maxUsers ?? 0,
       width: 140,
@@ -172,7 +174,7 @@ export default function DomainsPage() {
     },
     {
       id: "status",
-      label: "Status",
+      label: t("status"),
       sortable: true,
       sortAccessor: (row) => (row.enabled ? "active" : "disabled"),
       accessor: (row) => (
@@ -184,7 +186,7 @@ export default function DomainsPage() {
               <WarningRounded sx={{ fontSize: "0.875rem" }} />
             )
           }
-          label={row.enabled ? "Active" : "Disabled"}
+          label={row.enabled ? t("active") : t("disabled")}
           size="small"
           sx={{
             height: 22,
@@ -215,18 +217,18 @@ export default function DomainsPage() {
   return (
     <Box>
       <SectionHeader
-        title="Domains"
-        description={`${domains.length} domains configured`}
+        title={t("domainsTitle")}
+        description={t("domainsCount", { count: domains.length })}
         action={
           <Button startIcon={<AddRounded />} variant="contained" size="small">
-            Add Domain
+            {t("addDomain")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={domains}
-        searchPlaceholder="Search domains..."
+        searchPlaceholder={t("searchDomains")}
         searchAccessor={(row) => `${row.name} ${row.description ?? ""}`}
         rowsPerPage={10}
       />
@@ -250,15 +252,15 @@ export default function DomainsPage() {
           </ListItemIcon>
           <ListItemText>
             {domains.find((d) => d.id === selectedId)?.enabled
-              ? "Disable"
-              : "Enable"}
+              ? t("disable")
+              : t("enable")}
           </ListItemText>
         </MenuItem>
         <MenuItem onClick={handleMenuClose}>
           <ListItemIcon>
             <EditRounded sx={{ fontSize: "1.125rem" }} />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t("edit")}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -269,7 +271,7 @@ export default function DomainsPage() {
           <ListItemIcon>
             <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t("delete")}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

@@ -25,158 +25,138 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 const faqSections = [
   {
-    category: "Getting Started",
+    categoryKey: "gettingStarted" as const,
     icon: <InfoRounded sx={{ fontSize: 20 }} />,
     color: "#3B82F6",
     items: [
       {
-        question: "How do I access my email?",
-        answer:
-          "Click 'Continue with SSO' on the login page to authenticate via Keycloak. Once authenticated, you'll be redirected to your inbox automatically.",
+        questionKey: "faqAccessEmail" as const,
+        answerKey: "faqAccessEmailAnswer" as const,
       },
       {
-        question: "What browsers are supported?",
-        answer:
-          "Omnixys Mail supports all modern browsers including Chrome 90+, Firefox 88+, Safari 14+, and Edge 90+. We recommend keeping your browser up to date for the best experience.",
+        questionKey: "faqBrowsers" as const,
+        answerKey: "faqBrowsersAnswer" as const,
       },
       {
-        question: "How do I compose a new email?",
-        answer:
-          "Click the 'Compose' button in the mail toolbar or use the keyboard shortcut Ctrl+N. A compose drawer will open at the bottom of the screen where you can write your message.",
+        questionKey: "faqCompose" as const,
+        answerKey: "faqComposeAnswer" as const,
       },
     ],
   },
   {
-    category: "Mail Features",
+    categoryKey: "mailFeatures" as const,
     icon: <MailRounded sx={{ fontSize: 20 }} />,
     color: "#6A4BBC",
     items: [
       {
-        question: "How do I search for emails?",
-        answer:
-          "Use the search bar at the top of the message list. You can search by sender, subject, or content. Use advanced operators like 'from:', 'subject:', and 'has:attachment' for precise filtering.",
+        questionKey: "faqSearch" as const,
+        answerKey: "faqSearchAnswer" as const,
       },
       {
-        question: "Can I organize emails into folders?",
-        answer:
-          "Yes! Use the mailbox tree on the left to navigate folders. You can create custom folders, move emails between them, and set up sieve filters for automatic organization.",
+        questionKey: "faqFolders" as const,
+        answerKey: "faqFoldersAnswer" as const,
       },
       {
-        question: "How do I set up email filters?",
-        answer:
-          "Navigate to Settings > Sieve Filters to create rules that automatically sort, forward, or categorize incoming mail based on sender, subject, or content patterns.",
+        questionKey: "faqFilters" as const,
+        answerKey: "faqFiltersAnswer" as const,
       },
       {
-        question: "Does Omnixys Mail support keyboard shortcuts?",
-        answer:
-          "Yes! Common shortcuts include: Ctrl+N (new message), R (reply), A (reply all), F (forward), E (archive), and Delete (move to trash). Press ? to see all shortcuts.",
+        questionKey: "faqShortcuts" as const,
+        answerKey: "faqShortcutsAnswer" as const,
       },
     ],
   },
   {
-    category: "Security & Privacy",
+    categoryKey: "securityPrivacy" as const,
     icon: <SecurityRounded sx={{ fontSize: 20 }} />,
     color: "#EF4444",
     items: [
       {
-        question: "How is my email protected?",
-        answer:
-          "All connections use TLS 1.3 encryption. Emails are signed with DKIM and verified with SPF/DMARC. Your account is secured via Keycloak SSO with optional two-factor authentication.",
+        questionKey: "faqEmailProtected" as const,
+        answerKey: "faqEmailProtectedAnswer" as const,
       },
-      {
-        question: "What is DKIM and how do I set it up?",
-        answer:
-          "DKIM (DomainKeys Identified Mail) cryptographically signs outgoing emails to verify they haven't been tampered with. Admins can manage DKIM keys in Admin > DKIM Settings.",
-      },
-      {
-        question: "Can I enable two-factor authentication?",
-        answer:
-          "Yes! Go to Settings > Security and click 'Enable 2FA'. You can use authenticator apps (TOTP) or hardware security keys for an additional layer of protection.",
-      },
+      { questionKey: "faqDkim" as const, answerKey: "faqDkimAnswer" as const },
+      { questionKey: "faq2fa" as const, answerKey: "faq2faAnswer" as const },
     ],
   },
   {
-    category: "Administration",
+    categoryKey: "administration" as const,
     icon: <AdminPanelSettingsRounded sx={{ fontSize: 20 }} />,
     color: "#F59E0B",
     items: [
       {
-        question: "How do I add a new domain?",
-        answer:
-          "Go to Admin > Domains and click 'Add Domain'. Enter your domain name, configure MX records pointing to the Stalwart server, and set up SPF/DKIM/DMARC DNS records for optimal deliverability.",
+        questionKey: "faqAddDomain" as const,
+        answerKey: "faqAddDomainAnswer" as const,
       },
       {
-        question: "How do I manage user accounts?",
-        answer:
-          "Navigate to Admin > Users to create, edit, or disable accounts. You can assign roles, set storage quotas, and manage permissions for each user.",
+        questionKey: "faqManageUsers" as const,
+        answerKey: "faqManageUsersAnswer" as const,
       },
       {
-        question: "Where can I monitor mail queue and delivery?",
-        answer:
-          "Go to Admin > Queue to see the real-time mail queue with delivery status. Admin > Monitoring shows delivery throughput, latency metrics, and system health dashboards.",
+        questionKey: "faqMonitorQueue" as const,
+        answerKey: "faqMonitorQueueAnswer" as const,
       },
     ],
   },
   {
-    category: "Settings & Configuration",
+    categoryKey: "settingsConfig" as const,
     icon: <SettingsRounded sx={{ fontSize: 20 }} />,
     color: "#22C55E",
     items: [
       {
-        question: "How do I change my display name?",
-        answer:
-          "Go to Settings > Profile and click 'Edit Profile'. You can update your display name, avatar, and other personal information.",
+        questionKey: "faqDisplayName" as const,
+        answerKey: "faqDisplayNameAnswer" as const,
       },
       {
-        question: "Can I switch between light and dark mode?",
-        answer:
-          "Yes! Go to Settings > Appearance and toggle the dark mode switch. You can also set it to 'System' to automatically match your operating system preference.",
+        questionKey: "faqDarkMode" as const,
+        answerKey: "faqDarkModeAnswer" as const,
       },
       {
-        question: "How do I change the language?",
-        answer:
-          "Navigate to Settings > Appearance and use the Language dropdown to switch between English (en) and Deutsch (de).",
+        questionKey: "faqLanguage" as const,
+        answerKey: "faqLanguageAnswer" as const,
       },
     ],
   },
   {
-    category: "Contacts & Calendar",
+    categoryKey: "contactsCalendar" as const,
     icon: <ContactMailRounded sx={{ fontSize: 20 }} />,
     color: "#EC4899",
     items: [
       {
-        question: "How do I add contacts?",
-        answer:
-          "Go to Contacts and click 'Add Contact'. Fill in the contact details including name, email, phone, and organization. Contacts are synced with your JMAP account.",
+        questionKey: "faqAddContacts" as const,
+        answerKey: "faqAddContactsAnswer" as const,
       },
       {
-        question: "Can I import contacts from another provider?",
-        answer:
-          "Yes! Use the import function in Contacts to upload a vCard (.vcf) or CSV file. We support imports from Gmail, Outlook, Apple Contacts, and standard formats.",
+        questionKey: "faqImportContacts" as const,
+        answerKey: "faqImportContactsAnswer" as const,
       },
       {
-        question: "How does the calendar work?",
-        answer:
-          "The calendar provides a month view with event management. Click on any day to see or add events. Color-coding helps you distinguish between personal, work, and team events.",
+        questionKey: "faqCalendar" as const,
+        answerKey: "faqCalendarAnswer" as const,
       },
     ],
   },
 ];
 
 export default function HelpPage() {
+  const t = useTypedTranslations("help");
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredSections = faqSections
     .map((section) => ({
       ...section,
+      category: t(section.categoryKey),
       items: section.items.filter(
         (item) =>
-          item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.answer.toLowerCase().includes(searchQuery.toLowerCase()),
+          t(item.questionKey)
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          t(item.answerKey).toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     }))
     .filter((section) => section.items.length > 0);
@@ -187,16 +167,16 @@ export default function HelpPage() {
         variant="h4"
         sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.02em" }}
       >
-        Help & Documentation
+        {t("title")}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Find answers to common questions and learn how to use Omnixys Mail.
+        {t("subtitle")}
       </Typography>
 
       {/* Search */}
       <TextField
         fullWidth
-        placeholder="Search help topics..."
+        placeholder={t("searchPlaceholder")}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         slotProps={{
@@ -247,7 +227,7 @@ export default function HelpPage() {
 
           {section.items.map((item) => (
             <Accordion
-              key={item.question}
+              key={item.questionKey}
               disableGutters
               sx={{
                 mb: 0.5,
@@ -259,7 +239,7 @@ export default function HelpPage() {
             >
               <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {item.question}
+                  {t(item.questionKey)}
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
@@ -268,7 +248,7 @@ export default function HelpPage() {
                   color="text.secondary"
                   sx={{ lineHeight: 1.7 }}
                 >
-                  {item.answer}
+                  {t(item.answerKey)}
                 </Typography>
               </AccordionDetails>
             </Accordion>
@@ -288,10 +268,10 @@ export default function HelpPage() {
               }}
             />
             <Typography variant="h6" color="text.secondary">
-              No results found for "{searchQuery}"
+              {t("noResults")}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Try different keywords or browse the sections below.
+              {t("noResults")}
             </Typography>
           </CardContent>
         </Card>
@@ -307,17 +287,10 @@ export default function HelpPage() {
       >
         <CardContent sx={{ textAlign: "center", py: 3 }}>
           <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
-            Still need help?
+            {t("stillNeedHelp")}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Contact the IT team at{" "}
-            <Box
-              component="span"
-              sx={{ color: "primary.main", fontWeight: 500 }}
-            >
-              support@omnixys.com
-            </Box>{" "}
-            or reach out via the #help channel in chat.
+            {t("contactEmail")} / {t("contactChannel")}
           </Typography>
         </CardContent>
       </Card>

@@ -3,6 +3,7 @@
 import { ArrowBackRounded } from "@mui/icons-material";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import Link from "next/link";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 interface PlaceholderPageProps {
   title: string;
@@ -18,6 +19,7 @@ export default function PlaceholderPage({
   backHref = "/dashboard",
 }: PlaceholderPageProps) {
   const theme = useTheme();
+  const t = useTypedTranslations("common");
 
   return (
     <Box
@@ -59,7 +61,7 @@ export default function PlaceholderPage({
         variant="outlined"
         sx={{ mt: 1 }}
       >
-        Back to Dashboard
+        {t("backToDashboard")}
       </Button>
     </Box>
   );

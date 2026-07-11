@@ -17,6 +17,7 @@ import { formatDistanceToNow, parseISO } from "date-fns";
 import { useState } from "react";
 import { mockQueue } from "@/features/admin/constants/mockData";
 import type { StalwartQueuedMessage } from "@/features/admin/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
@@ -31,6 +32,7 @@ const statusColors: Record<string, { bg: string; color: string }> = {
 
 export default function QueuePage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [items, setItems] = useState(mockQueue);
 
   const handleRetry = (id: string) => {
@@ -50,7 +52,7 @@ export default function QueuePage() {
   const columns: Column<StalwartQueuedMessage>[] = [
     {
       id: "from",
-      label: "From",
+      label: t("senderAddress"),
       sortable: true,
       accessor: (row) => (
         <Typography
@@ -63,7 +65,7 @@ export default function QueuePage() {
     },
     {
       id: "to",
-      label: "To",
+      label: t("recipientCount"),
       sortable: true,
       accessor: (row) => (
         <Typography variant="body2" sx={{ fontSize: "0.8125rem" }}>
@@ -73,7 +75,7 @@ export default function QueuePage() {
     },
     {
       id: "size",
-      label: "Size",
+      label: t("messageSize"),
       sortable: true,
       align: "right",
       accessor: (row) => (
@@ -86,7 +88,7 @@ export default function QueuePage() {
     },
     {
       id: "created",
-      label: "Created",
+      label: t("created"),
       sortable: true,
       sortAccessor: (row) => row.created,
       accessor: (row) => {
@@ -107,7 +109,7 @@ export default function QueuePage() {
     },
     {
       id: "status",
-      label: "Status",
+      label: t("status"),
       sortable: true,
       accessor: (row) => {
         const cfg = statusColors[row.status] ?? {
@@ -140,7 +142,7 @@ export default function QueuePage() {
             <IconButton
               size="small"
               onClick={() => handleRetry(row.id)}
-              title="Retry"
+              title={t("retry")}
             >
               <ReplayRounded sx={{ fontSize: "1rem" }} />
             </IconButton>
@@ -148,7 +150,7 @@ export default function QueuePage() {
           <IconButton
             size="small"
             onClick={() => handleDelete(row.id)}
-            title="Remove"
+            title={t("remove")}
           >
             <DeleteRounded sx={{ fontSize: "1rem" }} />
           </IconButton>
@@ -160,27 +162,27 @@ export default function QueuePage() {
   return (
     <Box>
       <SectionHeader
-        title="Queue"
-        description={`${items.length} messages in queue`}
+        title={t("queueTitle")}
+        description={t("queueCount", { count: items.length })}
         action={
           <Button
             startIcon={<RefreshRounded />}
             variant="outlined"
             size="small"
           >
-            Refresh
+            {t("refresh")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={items}
-        searchPlaceholder="Search queue..."
+        searchPlaceholder={t("queueEmpty")}
         searchAccessor={(row) =>
           `${row.from} ${Array.isArray(row.to) ? row.to.join(" ") : row.to}`
         }
         rowsPerPage={10}
-        emptyMessage="Queue is empty"
+        emptyMessage={t("queueEmpty")}
       />
     </Box>
   );

@@ -8,5 +8,8 @@
   "toggleSidebar": "Seitenleiste umschalten",
   "userMenu": "Benutzermenü",
   "profile": "Profil",
-  "signOut": "Abmelden"
+  "signOut": "Abmelden",
+  "headerSearch": "Suchen...",
+  "logout": "Abmelden",
+  "settings": "Einstellungen"
 }

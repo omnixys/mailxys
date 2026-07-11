@@ -23,6 +23,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
@@ -150,6 +151,7 @@ function UsageBar({
 
 export default function QuotasPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [quotas, setQuotas] = useState(mockQuotas);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -173,7 +175,7 @@ export default function QuotasPage() {
   const columns: Column<MockQuota>[] = [
     {
       id: "name",
-      label: "Name",
+      label: t("displayName"),
       sortable: true,
       accessor: (row) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -202,7 +204,7 @@ export default function QuotasPage() {
     },
     {
       id: "type",
-      label: "Type",
+      label: t("type"),
       sortable: true,
       accessor: (row) => (
         <Chip
@@ -220,7 +222,7 @@ export default function QuotasPage() {
     },
     {
       id: "storageLimit",
-      label: "Storage Limit",
+      label: t("storageLimit"),
       sortable: true,
       sortAccessor: (row) => row.storageLimit,
       width: 180,
@@ -235,7 +237,7 @@ export default function QuotasPage() {
           <UsageBar
             used={row.storageUsed}
             limit={row.storageLimit}
-            label="Storage"
+            label={t("storageUsed")}
             theme={theme}
           />
         </Box>
@@ -243,7 +245,7 @@ export default function QuotasPage() {
     },
     {
       id: "messageLimit",
-      label: "Message Limit",
+      label: t("messageLimit"),
       sortable: true,
       sortAccessor: (row) => row.messageLimit,
       width: 180,
@@ -258,7 +260,7 @@ export default function QuotasPage() {
           <UsageBar
             used={row.messageUsed}
             limit={row.messageLimit}
-            label="Messages"
+            label={t("messagesUsed")}
             theme={theme}
           />
         </Box>
@@ -266,12 +268,12 @@ export default function QuotasPage() {
     },
     {
       id: "status",
-      label: "Status",
+      label: t("status"),
       sortable: true,
       sortAccessor: (row) => (row.active ? "active" : "inactive"),
       accessor: (row) => (
         <Chip
-          label={row.active ? "Active" : "Inactive"}
+          label={row.active ? t("active") : t("inactive")}
           size="small"
           sx={{
             height: 22,
@@ -301,18 +303,18 @@ export default function QuotasPage() {
   return (
     <Box>
       <SectionHeader
-        title="Quotas"
-        description={`${quotas.length} quota plans configured`}
+        title={t("quotasTitle")}
+        description={t("quotasCount", { count: quotas.length })}
         action={
           <Button startIcon={<AddRounded />} variant="contained" size="small">
-            Add Quota
+            {t("addQuota")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={quotas}
-        searchPlaceholder="Search quotas..."
+        searchPlaceholder={t("searchQuotas")}
         searchAccessor={(row) => `${row.name} ${row.type}`}
         rowsPerPage={10}
       />
@@ -326,7 +328,7 @@ export default function QuotasPage() {
           <ListItemIcon>
             <EditRounded sx={{ fontSize: "1.125rem" }} />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t("edit")}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -337,7 +339,7 @@ export default function QuotasPage() {
           <ListItemIcon>
             <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t("delete")}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

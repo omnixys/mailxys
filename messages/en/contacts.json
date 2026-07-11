@@ -41,5 +41,6 @@
   "removeFromFavorites": "Remove from favorites",
   "sendEmail": "Send email",
   "call": "Call",
-  "mergeContacts": "Merge contacts"
+  "mergeContacts": "Merge contacts",
+  "contactsCount": "{count, plural, one {# contact} other {# contacts}}"
 }

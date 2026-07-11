@@ -2,6 +2,7 @@
 
 import { Box, LinearProgress, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 interface StorageItem {
   name: string;
@@ -16,6 +17,7 @@ interface StorageCardProps {
 
 export function StorageCard({ items }: StorageCardProps) {
   const theme = useTheme();
+  const t = useTypedTranslations("common");
 
   return (
     <motion.div
@@ -39,7 +41,7 @@ export function StorageCard({ items }: StorageCardProps) {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Storage
+            {t("storage")}
           </Typography>
         </Box>
         <Box sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2.5 }}>

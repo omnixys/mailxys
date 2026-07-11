@@ -19,43 +19,42 @@ import {
   useTheme,
 } from "@mui/material";
 import Link from "next/link";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 const features = [
   {
     icon: <MailRounded sx={{ fontSize: 28 }} />,
-    title: "Modern Webmail",
-    description:
-      "Beautiful, fast email client built with JMAP protocol for real-time sync.",
+    titleKey: "modernWebmail",
+    descKey: "modernWebmailDesc",
   },
   {
     icon: <SecurityRounded sx={{ fontSize: 28 }} />,
-    title: "Enterprise Security",
-    description:
-      "DKIM, SPF, DMARC, TLS 1.3, sieve filtering, and Keycloak SSO.",
+    titleKey: "enterpriseSecurity",
+    descKey: "enterpriseSecurityDesc",
   },
   {
     icon: <SpeedRounded sx={{ fontSize: 28 }} />,
-    title: "Blazing Fast",
-    description: "Optimized delivery pipeline with 99.97% uptime SLA.",
+    titleKey: "blazingFast",
+    descKey: "blazingFastDesc",
   },
   {
     icon: <StorageRounded sx={{ fontSize: 28 }} />,
-    title: "Scalable Storage",
-    description:
-      "PostgreSQL + MinIO S3 backend supporting terabytes of mail data.",
+    titleKey: "scalableStorage",
+    descKey: "scalableStorageDesc",
   },
 ];
 
-const highlights = [
-  "JMAP-native protocol",
-  "Multi-domain support",
-  "Role-based access control",
-  "Real-time notifications",
-  "Sieve mail filtering",
-  "DKIM key rotation",
+const highlightKeys = [
+  "jmapProtocol",
+  "multiDomain",
+  "rbac",
+  "realtimeNotifications",
+  "sieveFiltering",
+  "dkimRotation",
 ];
 
 export default function MarketingPage() {
+  const t = useTypedTranslations("marketing");
   const theme = useTheme();
 
   return (
@@ -82,7 +81,7 @@ export default function MarketingPage() {
             mb: 2,
           }}
         >
-          Enterprise Email
+          {t("heroTitle")}
           <br />
           <Box
             component="span"
@@ -92,7 +91,7 @@ export default function MarketingPage() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Reimagined
+            {t("heroHighlight")}
           </Box>
         </Typography>
         <Typography
@@ -100,8 +99,7 @@ export default function MarketingPage() {
           color="text.secondary"
           sx={{ maxWidth: 500, mx: "auto", mb: 4, fontWeight: 400 }}
         >
-          Omnixys Mail delivers a modern webmail experience powered by Stalwart
-          Mail Server and the JMAP protocol.
+          {t("heroSubtitle")}
         </Typography>
         <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
           <Button
@@ -119,7 +117,7 @@ export default function MarketingPage() {
               borderRadius: 2,
             }}
           >
-            Get Started
+            {t("getStarted")}
           </Button>
           <Button
             variant="outlined"
@@ -133,7 +131,7 @@ export default function MarketingPage() {
               borderRadius: 2,
             }}
           >
-            Documentation
+            {t("documentation")}
           </Button>
         </Box>
       </Box>
@@ -149,11 +147,11 @@ export default function MarketingPage() {
             letterSpacing: "-0.02em",
           }}
         >
-          Built for Scale
+          {t("builtForScale")}
         </Typography>
         <Grid container spacing={3}>
           {features.map((feature) => (
-            <Grid size={{ xs: 12, sm: 6 }} key={feature.title}>
+            <Grid size={{ xs: 12, sm: 6 }} key={feature.titleKey}>
               <Card
                 sx={{
                   height: "100%",
@@ -182,10 +180,10 @@ export default function MarketingPage() {
                     {feature.icon}
                   </Box>
                   <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-                    {feature.title}
+                    {t(feature.titleKey as never)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {feature.description}
+                    {t(feature.descKey as never)}
                   </Typography>
                 </CardContent>
               </Card>
@@ -209,7 +207,7 @@ export default function MarketingPage() {
             variant="h4"
             sx={{ fontWeight: 800, mb: 4, letterSpacing: "-0.02em" }}
           >
-            Everything You Need
+            {t("everythingYouNeed")}
           </Typography>
           <Box
             sx={{
@@ -219,16 +217,16 @@ export default function MarketingPage() {
               textAlign: "left",
             }}
           >
-            {highlights.map((item) => (
+            {highlightKeys.map((key) => (
               <Box
-                key={item}
+                key={key}
                 sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
               >
                 <CheckCircleRounded
                   sx={{ fontSize: "1.25rem", color: "success.main" }}
                 />
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {item}
+                  {t(key as never)}
                 </Typography>
               </Box>
             ))}
@@ -239,7 +237,7 @@ export default function MarketingPage() {
       {/* Footer */}
       <Box sx={{ px: 4, py: 4, textAlign: "center" }}>
         <Typography variant="caption" color="text.secondary">
-          Omnixys Mail &mdash; Powered by Stalwart Mail Server v0.16.12
+          {t("footer")}
         </Typography>
       </Box>
     </Box>

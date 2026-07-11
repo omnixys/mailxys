@@ -18,6 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useMemo, useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 export interface Column<T> {
   id: string;
@@ -44,13 +45,16 @@ type Order = "asc" | "desc";
 export function DataTable<T extends { id: string }>({
   columns,
   data,
-  searchPlaceholder = "Search...",
+  searchPlaceholder,
   searchAccessor,
   rowsPerPage = 10,
   onRowClick,
-  emptyMessage = "No data found",
+  emptyMessage,
 }: DataTableProps<T>) {
   const theme = useTheme();
+  const t = useTypedTranslations("common");
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t("searchPlaceholder");
+  const resolvedEmptyMessage = emptyMessage ?? t("noDataFound");
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string>("");
@@ -97,7 +101,7 @@ export function DataTable<T extends { id: string }>({
           <TextField
             fullWidth
             size="small"
-            placeholder={searchPlaceholder}
+            placeholder={resolvedSearchPlaceholder}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -169,7 +173,7 @@ export function DataTable<T extends { id: string }>({
                   sx={{ py: 6 }}
                 >
                   <Typography variant="body2" color="text.secondary">
-                    {emptyMessage}
+                    {resolvedEmptyMessage}
                   </Typography>
                 </TableCell>
               </TableRow>

@@ -22,11 +22,13 @@ import {
 import { useState } from "react";
 import { mockAliases } from "@/features/admin/constants/mockData";
 import type { StalwartAlias } from "@/features/admin/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function AliasesPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [aliases, setAliases] = useState(mockAliases);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function AliasesPage() {
   const columns: Column<StalwartAlias>[] = [
     {
       id: "alias",
-      label: "Alias",
+      label: t("aliasesTitle"),
       sortable: true,
       accessor: (row) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -82,7 +84,7 @@ export default function AliasesPage() {
     },
     {
       id: "domain",
-      label: "Domain",
+      label: t("domain"),
       sortable: true,
       accessor: (row) => (
         <Typography variant="body2" sx={{ fontSize: "0.8125rem" }}>
@@ -92,7 +94,7 @@ export default function AliasesPage() {
     },
     {
       id: "addresses",
-      label: "Forwards To",
+      label: t("forwardingAddress"),
       accessor: (row) => (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
           {row.addresses.map((addr) => (
@@ -112,12 +114,12 @@ export default function AliasesPage() {
     },
     {
       id: "status",
-      label: "Status",
+      label: t("status"),
       sortable: true,
       sortAccessor: (row) => (row.enabled ? "active" : "disabled"),
       accessor: (row) => (
         <Chip
-          label={row.enabled ? "Active" : "Disabled"}
+          label={row.enabled ? t("active") : t("disabled")}
           size="small"
           sx={{
             height: 22,
@@ -147,18 +149,18 @@ export default function AliasesPage() {
   return (
     <Box>
       <SectionHeader
-        title="Aliases"
-        description={`${aliases.length} aliases configured`}
+        title={t("aliasesTitle")}
+        description={t("aliasesCount", { count: aliases.length })}
         action={
           <Button startIcon={<AddRounded />} variant="contained" size="small">
-            Add Alias
+            {t("addAlias")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={aliases}
-        searchPlaceholder="Search aliases..."
+        searchPlaceholder={t("searchAliases")}
         searchAccessor={(row) =>
           `${row.name}@${row.domain} ${row.addresses.join(" ")}`
         }
@@ -174,7 +176,7 @@ export default function AliasesPage() {
           <ListItemIcon>
             <EditRounded sx={{ fontSize: "1.125rem" }} />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t("edit")}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -185,7 +187,7 @@ export default function AliasesPage() {
           <ListItemIcon>
             <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t("delete")}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

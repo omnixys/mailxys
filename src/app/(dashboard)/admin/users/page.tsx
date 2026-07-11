@@ -24,11 +24,13 @@ import {
 import { useState } from "react";
 import { mockAccounts } from "@/features/admin/constants/mockData";
 import type { StalwartAccount } from "@/features/admin/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function UsersPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [accounts, setAccounts] = useState(mockAccounts);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export default function UsersPage() {
   const columns: Column<StalwartAccount>[] = [
     {
       id: "name",
-      label: "Account",
+      label: t("username"),
       sortable: true,
       accessor: (row) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -96,7 +98,7 @@ export default function UsersPage() {
     },
     {
       id: "type",
-      label: "Type",
+      label: t("type"),
       sortable: true,
       sortAccessor: (row) => row.typ,
       accessor: (row) => (
@@ -116,7 +118,7 @@ export default function UsersPage() {
     },
     {
       id: "role",
-      label: "Role",
+      label: t("roleName"),
       sortable: true,
       sortAccessor: (row) => row.role ?? "",
       accessor: (row) => (
@@ -139,7 +141,7 @@ export default function UsersPage() {
     },
     {
       id: "status",
-      label: "Status",
+      label: t("status"),
       sortable: true,
       sortAccessor: (row) => (row.disabled ? "disabled" : "active"),
       accessor: (row) => (
@@ -149,7 +151,7 @@ export default function UsersPage() {
               <CheckCircleRounded sx={{ fontSize: "0.875rem" }} />
             )
           }
-          label={row.disabled ? "Disabled" : "Active"}
+          label={row.disabled ? t("disabled") : t("active")}
           size="small"
           sx={{
             height: 22,
@@ -180,18 +182,18 @@ export default function UsersPage() {
   return (
     <Box>
       <SectionHeader
-        title="Users"
-        description={`${accounts.length} accounts configured`}
+        title={t("usersTitle")}
+        description={t("accountsCount", { count: accounts.length })}
         action={
           <Button startIcon={<AddRounded />} variant="contained" size="small">
-            Add User
+            {t("addUser")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={accounts}
-        searchPlaceholder="Search users..."
+        searchPlaceholder={t("searchUsers")}
         searchAccessor={(row) => `${row.name} ${row.description ?? ""}`}
         rowsPerPage={10}
       />
@@ -216,15 +218,15 @@ export default function UsersPage() {
           </ListItemIcon>
           <ListItemText>
             {accounts.find((a) => a.id === selectedId)?.disabled
-              ? "Enable"
-              : "Disable"}
+              ? t("enable")
+              : t("disable")}
           </ListItemText>
         </MenuItem>
         <MenuItem onClick={handleMenuClose}>
           <ListItemIcon>
             <EditRounded sx={{ fontSize: "1.125rem" }} />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t("edit")}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -235,7 +237,7 @@ export default function UsersPage() {
           <ListItemIcon>
             <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t("delete")}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

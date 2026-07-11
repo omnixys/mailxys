@@ -43,6 +43,7 @@ import {
   storageGrowthData,
   topSenders,
 } from "@/features/analytics/constants/mockData";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 const DATE_RANGE_TABS = [
   { label: "7d", value: "7d" },
@@ -52,30 +53,31 @@ const DATE_RANGE_TABS = [
 
 type DateRange = (typeof DATE_RANGE_TABS)[number]["value"];
 
-const KPI_ICONS: Record<string, React.ReactNode> = {
-  "Total Sent": <SendRounded sx={{ fontSize: "1.5rem" }} />,
-  "Total Received": <InboxRounded sx={{ fontSize: "1.5rem" }} />,
-  "Bounce Rate": <WarningRounded sx={{ fontSize: "1.5rem" }} />,
-  "Avg Delivery Time": <TimerRounded sx={{ fontSize: "1.5rem" }} />,
-};
-
-const KPI_GRADIENTS: Record<string, string> = {
-  "Total Sent": "linear-gradient(135deg, #6A4BBC 0%, #8B6FDB 100%)",
-  "Total Received": "linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)",
-  "Bounce Rate": "linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)",
-  "Avg Delivery Time": "linear-gradient(135deg, #22C55E 0%, #4ADE80 100%)",
-};
-
-function formatValue(metric: (typeof analyticsKpiMetrics)[number]): string {
-  if (metric.label === "Bounce Rate") return `${metric.value}%`;
-  if (metric.label === "Avg Delivery Time") return `${metric.value}s`;
-  return metric.value.toLocaleString();
-}
-
 export default function AnalyticsPage() {
+  const t = useTypedTranslations("analytics");
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [dateRange, setDateRange] = useState<DateRange>("30d");
+
+  const KPI_ICONS: Record<string, React.ReactNode> = {
+    [t("totalSent")]: <SendRounded sx={{ fontSize: "1.5rem" }} />,
+    [t("totalReceived")]: <InboxRounded sx={{ fontSize: "1.5rem" }} />,
+    [t("bounceRate")]: <WarningRounded sx={{ fontSize: "1.5rem" }} />,
+    [t("avgDeliveryTime")]: <TimerRounded sx={{ fontSize: "1.5rem" }} />,
+  };
+
+  const KPI_GRADIENTS: Record<string, string> = {
+    [t("totalSent")]: "linear-gradient(135deg, #6A4BBC 0%, #8B6FDB 100%)",
+    [t("totalReceived")]: "linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)",
+    [t("bounceRate")]: "linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)",
+    [t("avgDeliveryTime")]: "linear-gradient(135deg, #22C55E 0%, #4ADE80 100%)",
+  };
+
+  function formatValue(metric: (typeof analyticsKpiMetrics)[number]): string {
+    if (metric.label === t("bounceRate")) return `${metric.value}%`;
+    if (metric.label === t("avgDeliveryTime")) return `${metric.value}s`;
+    return metric.value.toLocaleString();
+  }
 
   const chartTextColor = isDark
     ? theme.palette.grey[400]
@@ -113,7 +115,7 @@ export default function AnalyticsPage() {
             variant="h4"
             sx={{ fontWeight: 800, letterSpacing: "-0.02em" }}
           >
-            Analytics
+            {t("title")}
           </Typography>
           <Tabs
             value={dateRange}
@@ -247,10 +249,10 @@ export default function AnalyticsPage() {
               >
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Email Volume
+                    {t("emailVolume")}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Sent vs Received over time
+                    {t("sentVsReceived")}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 2 }}>
@@ -264,7 +266,7 @@ export default function AnalyticsPage() {
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Received
+                      {t("totalReceived")}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -277,7 +279,7 @@ export default function AnalyticsPage() {
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Sent
+                      {t("totalSent")}
                     </Typography>
                   </Box>
                 </Box>
@@ -365,10 +367,10 @@ export default function AnalyticsPage() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Domain Distribution
+                  {t("domainDistribution")}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Emails by recipient domain
+                  {t("topDomains")}
                 </Typography>
               </Box>
               <Box
@@ -470,10 +472,10 @@ export default function AnalyticsPage() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Top Senders
+                  {t("topSenders")}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Messages sent this period
+                  {t("totalSent")}
                 </Typography>
               </Box>
               <Box sx={{ p: 3, height: 400 }}>
@@ -511,7 +513,7 @@ export default function AnalyticsPage() {
                       }}
                       formatter={(value) => [
                         Number(value).toLocaleString(),
-                        "Emails",
+                        t("emails"),
                       ]}
                     />
                     <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={24}>
@@ -560,10 +562,10 @@ export default function AnalyticsPage() {
               >
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Bounce &amp; Deferment
+                    {t("bounceByHour")}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Distribution by hour of day
+                    {t("distribution")}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 2 }}>
@@ -577,7 +579,7 @@ export default function AnalyticsPage() {
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Bounced
+                      {t("bounceRate")}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -590,7 +592,7 @@ export default function AnalyticsPage() {
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Deferred
+                      {t("deferralRate")}
                     </Typography>
                   </Box>
                 </Box>
@@ -671,14 +673,14 @@ export default function AnalyticsPage() {
               >
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Storage Growth
+                    {t("storageGrowth")}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Monthly storage usage over 12 months
+                    {t("storageOverTime")}
                   </Typography>
                 </Box>
                 <Chip
-                  label={`${Math.round(((storageGrowthData.at(-1)?.used ?? 0) / (storageGrowthData.at(-1)?.capacity ?? 1)) * 100)}% capacity used`}
+                  label={`${Math.round(((storageGrowthData.at(-1)?.used ?? 0) / (storageGrowthData.at(-1)?.capacity ?? 1)) * 100)}% ${t("capacityUsed")}`}
                   size="small"
                   sx={{
                     fontWeight: 600,
@@ -736,7 +738,7 @@ export default function AnalyticsPage() {
                       }}
                       formatter={(value, name) => [
                         `${value} GB`,
-                        name === "used" ? "Used" : "Capacity",
+                        name === "used" ? t("capacityUsed") : t("capacityUsed"),
                       ]}
                     />
                     <Area

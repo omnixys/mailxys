@@ -21,6 +21,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
@@ -78,6 +79,7 @@ const mockGroups: MockGroup[] = [
 
 export default function GroupsPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
   const [groups, setGroups] = useState(mockGroups);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -101,7 +103,7 @@ export default function GroupsPage() {
   const columns: Column<MockGroup>[] = [
     {
       id: "name",
-      label: "Name",
+      label: t("groupName"),
       sortable: true,
       accessor: (row) => (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -133,7 +135,7 @@ export default function GroupsPage() {
     },
     {
       id: "description",
-      label: "Description",
+      label: t("description"),
       sortable: true,
       accessor: (row) => (
         <Typography variant="body2" sx={{ fontSize: "0.8125rem" }}>
@@ -143,12 +145,12 @@ export default function GroupsPage() {
     },
     {
       id: "members",
-      label: "Members",
+      label: t("members"),
       sortable: true,
       sortAccessor: (row) => row.members,
       accessor: (row) => (
         <Chip
-          label={`${row.members} users`}
+          label={t("usersCount", { count: row.members })}
           size="small"
           sx={{
             height: 22,
@@ -162,7 +164,7 @@ export default function GroupsPage() {
     },
     {
       id: "created",
-      label: "Created",
+      label: t("created"),
       sortable: true,
       accessor: (row) => (
         <Typography
@@ -189,18 +191,18 @@ export default function GroupsPage() {
   return (
     <Box>
       <SectionHeader
-        title="Groups"
-        description={`${groups.length} groups configured`}
+        title={t("groupsTitle")}
+        description={t("groupsCount", { count: groups.length })}
         action={
           <Button startIcon={<AddRounded />} variant="contained" size="small">
-            Add Group
+            {t("addGroup")}
           </Button>
         }
       />
       <DataTable
         columns={columns}
         data={groups}
-        searchPlaceholder="Search groups..."
+        searchPlaceholder={t("searchGroups")}
         searchAccessor={(row) => `${row.name} ${row.description}`}
         rowsPerPage={10}
       />
@@ -214,7 +216,7 @@ export default function GroupsPage() {
           <ListItemIcon>
             <EditRounded sx={{ fontSize: "1.125rem" }} />
           </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
+          <ListItemText>{t("edit")}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -225,7 +227,7 @@ export default function GroupsPage() {
           <ListItemIcon>
             <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
           </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
+          <ListItemText>{t("delete")}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

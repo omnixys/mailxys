@@ -1,11 +1,15 @@
+"use client";
+
 import { ReportRounded } from "@mui/icons-material";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import PlaceholderPage from "../PlaceholderPage";
 
 export default function SpamPage() {
+  const t = useTypedTranslations("mail");
   return (
     <PlaceholderPage
-      title="Spam"
-      description="Spam messages are filtered here. JMAP integration coming soon."
+      title={t("spam")}
+      description={t("spamDesc")}
       icon={<ReportRounded sx={{ fontSize: 32 }} />}
     />
   );

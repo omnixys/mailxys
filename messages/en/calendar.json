@@ -55,5 +55,6 @@
   "nextWeek": "Next Week",
   "previousMonth": "Previous month",
   "nextMonth": "Next month",
-  "jumpToToday": "Jump to today"
+  "jumpToToday": "Jump to today",
+  "eventsCount": "{count, plural, one {# event} other {# events}}"
 }

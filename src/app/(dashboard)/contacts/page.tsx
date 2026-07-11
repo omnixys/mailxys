@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { mockContacts } from "@/features/contacts/constants/mockData";
 import type { Contact } from "@/features/contacts/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 const AVATAR_COLORS = [
   "#6A4BBC",
@@ -47,6 +48,7 @@ function formatDate(iso: string): string {
 }
 
 export default function ContactsPage() {
+  const t = useTypedTranslations("contacts");
   const theme = useTheme();
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -82,10 +84,10 @@ export default function ContactsPage() {
             variant="h4"
             sx={{ fontWeight: 800, letterSpacing: "-0.02em" }}
           >
-            Contacts
+            {t("title")}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {filtered.length} contact{filtered.length !== 1 ? "s" : ""}
+            {t("contactsCount", { count: filtered.length })}
           </Typography>
         </Box>
         <Button
@@ -94,7 +96,7 @@ export default function ContactsPage() {
           startIcon={<AddRounded />}
           sx={{ textTransform: "none", fontWeight: 600 }}
         >
-          Add Contact
+          {t("addContact")}
         </Button>
       </Box>
 
@@ -102,7 +104,7 @@ export default function ContactsPage() {
       <TextField
         fullWidth
         size="small"
-        placeholder="Search contacts..."
+        placeholder={t("searchPlaceholder")}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         slotProps={{
@@ -138,7 +140,7 @@ export default function ContactsPage() {
             }}
           />
           <Typography variant="h6" color="text.secondary">
-            No contacts found
+            {t("noResults")}
           </Typography>
         </Box>
       )}
@@ -176,6 +178,7 @@ function ContactCard({
   onToggle: () => void;
   theme: Theme;
 }) {
+  const t = useTypedTranslations("contacts");
   const initials = `${contact.firstName[0]}${contact.lastName[0]}`;
   const avatarColor = getAvatarColor(`${contact.firstName}${contact.lastName}`);
   const fullName = `${contact.firstName} ${contact.lastName}`;
@@ -264,10 +267,20 @@ function ContactCard({
           <Box
             sx={{ pt: 2, display: "flex", flexDirection: "column", gap: 1.5 }}
           >
-            {contact.phone && <DetailRow label="Phone" value={contact.phone} />}
-            {contact.notes && <DetailRow label="Notes" value={contact.notes} />}
-            <DetailRow label="Created" value={formatDate(contact.createdAt)} />
-            <DetailRow label="Updated" value={formatDate(contact.updatedAt)} />
+            {contact.phone && (
+              <DetailRow label={t("phone")} value={contact.phone} />
+            )}
+            {contact.notes && (
+              <DetailRow label={t("notes")} value={contact.notes} />
+            )}
+            <DetailRow
+              label={t("created")}
+              value={formatDate(contact.createdAt)}
+            />
+            <DetailRow
+              label={t("updated")}
+              value={formatDate(contact.updatedAt)}
+            />
           </Box>
         </Box>
       </Collapse>

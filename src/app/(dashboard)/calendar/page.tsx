@@ -26,15 +26,7 @@ import type {
   CalendarEvent,
   CalendarViewType,
 } from "@/features/calendar/types";
-
-const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const VIEW_TABS: { label: string; value: CalendarViewType }[] = [
-  { label: "Month", value: "month" },
-  { label: "Week", value: "week" },
-  { label: "Day", value: "day" },
-  { label: "Agenda", value: "agenda" },
-];
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 function getEventsForDay(events: CalendarEvent[], day: Date): CalendarEvent[] {
   return events.filter((event) => {
@@ -53,6 +45,7 @@ function formatEventTime(iso: string): string {
 }
 
 export default function CalendarPage() {
+  const t = useTypedTranslations("calendar");
   const theme = useTheme();
   const [currentDate, setCurrentDate] = useState(new Date(2026, 6, 1));
   const [selectedDay, setSelectedDay] = useState<Date | null>(
@@ -80,6 +73,23 @@ export default function CalendarPage() {
     setCurrentDate(new Date(2026, 6, 1));
     setSelectedDay(new Date(2026, 6, 1));
   };
+
+  const WEEKDAY_LABELS = [
+    t("sun"),
+    t("mon"),
+    t("tue"),
+    t("wed"),
+    t("thu"),
+    t("fri"),
+    t("sat"),
+  ];
+
+  const VIEW_TABS: { label: string; value: CalendarViewType }[] = [
+    { label: t("month"), value: "month" },
+    { label: t("week"), value: "week" },
+    { label: t("day"), value: "day" },
+    { label: t("agenda"), value: "agenda" },
+  ];
 
   return (
     <Box
@@ -113,14 +123,14 @@ export default function CalendarPage() {
               variant="h4"
               sx={{ fontWeight: 800, letterSpacing: "-0.02em" }}
             >
-              Calendar
+              {t("title")}
             </Typography>
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{ mt: 0.25 }}
             >
-              Manage your schedule and events
+              {t("subtitle")}
             </Typography>
           </Box>
         </Box>
@@ -181,7 +191,7 @@ export default function CalendarPage() {
                   borderColor: alpha(theme.palette.divider, 0.6),
                 }}
               >
-                Today
+                {t("today")}
               </Button>
               <Button
                 size="small"
@@ -341,7 +351,7 @@ export default function CalendarPage() {
                           fontWeight: 600,
                         }}
                       >
-                        +{dayEvents.length - 3} more
+                        +{dayEvents.length - 3}
                       </Typography>
                     )}
                   </Box>
@@ -368,12 +378,12 @@ export default function CalendarPage() {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.25 }}>
-            {selectedDay ? format(selectedDay, "EEEE, MMM d") : "Select a day"}
+            {selectedDay ? format(selectedDay, "EEEE, MMM d") : t("today")}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
             {selectedDayEvents.length === 0
-              ? "No events"
-              : `${selectedDayEvents.length} event${selectedDayEvents.length !== 1 ? "s" : ""}`}
+              ? t("noEvents")
+              : t("eventsCount", { count: selectedDayEvents.length })}
           </Typography>
 
           {selectedDayEvents.length === 0 ? (
@@ -414,7 +424,7 @@ export default function CalendarPage() {
                     sx={{ mt: 0.25, display: "block" }}
                   >
                     {event.allDay
-                      ? "All day"
+                      ? t("allDay")
                       : `${formatEventTime(event.start)} – ${formatEventTime(event.end)}`}
                   </Typography>
                   {event.location && (

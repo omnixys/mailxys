@@ -26,6 +26,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/auth/providers/AuthProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
 import { useCommandPaletteStore } from "@/store/useCommandPaletteStore";
 
@@ -34,6 +35,7 @@ export default function Header() {
   const { mode, toggleMode } = useThemeMode();
   const { open } = useCommandPaletteStore();
   const { user, logout } = useAuth();
+  const t = useTypedTranslations("shared");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
@@ -76,7 +78,7 @@ export default function Header() {
         >
           <SearchRounded fontSize="small" />
           <Typography variant="body2" sx={{ flex: 1, color: "text.secondary" }}>
-            Search...
+            {t("headerSearch")}
           </Typography>
           <Box
             sx={{
@@ -170,20 +172,20 @@ export default function Header() {
             <ListItemIcon>
               <PersonRounded fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Profile</ListItemText>
+            <ListItemText>{t("profile")}</ListItemText>
           </MenuItem>
           <MenuItem onClick={() => setAnchorEl(null)}>
             <ListItemIcon>
               <SettingsRounded fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Settings</ListItemText>
+            <ListItemText>{t("settings")}</ListItemText>
           </MenuItem>
           <Divider />
           <MenuItem onClick={logout}>
             <ListItemIcon>
               <LogoutRounded fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Logout</ListItemText>
+            <ListItemText>{t("logout")}</ListItemText>
           </MenuItem>
         </Menu>
       </Box>

@@ -12,10 +12,12 @@ import {
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { useMemo } from "react";
 import type { JmapEmail } from "@/features/mail/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
 
 export function MessageList() {
   const theme = useTheme();
+  const t = useTypedTranslations("mail");
   const { emails, selectedEmailId, selectEmail, searchQuery } = useMailStore();
 
   const filteredEmails = useMemo(() => {
@@ -37,7 +39,7 @@ export function MessageList() {
       {filteredEmails.length === 0 ? (
         <Box sx={{ p: 4, textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
-            No messages found
+            {t("noMessagesFound")}
           </Typography>
         </Box>
       ) : (

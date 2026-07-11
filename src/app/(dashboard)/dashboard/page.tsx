@@ -17,6 +17,7 @@ import {
   storageData,
   systemServices,
 } from "@/features/dashboard/constants/mockData";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { DashboardAreaChart } from "@/shared/charts/DashboardAreaChart";
 import { DashboardBarChart } from "@/shared/charts/DashboardBarChart";
 import { DashboardPieChart } from "@/shared/charts/DashboardPieChart";
@@ -28,10 +29,11 @@ import { SystemStatusCard } from "@/shared/ui/SystemStatusCard";
 export default function DashboardPage() {
   const theme = useTheme();
   const _isDark = theme.palette.mode === "dark";
+  const t = useTypedTranslations("dashboard");
 
   const kpis = [
     {
-      title: "Total Emails",
+      title: t("totalEmails"),
       value: kpiData.totalEmails.value,
       change: kpiData.totalEmails.change,
       period: kpiData.totalEmails.period,
@@ -39,7 +41,7 @@ export default function DashboardPage() {
       gradient: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`,
     },
     {
-      title: "Active Users",
+      title: t("activeUsers"),
       value: kpiData.activeUsers.value,
       change: kpiData.activeUsers.change,
       period: kpiData.activeUsers.period,
@@ -47,7 +49,7 @@ export default function DashboardPage() {
       gradient: `linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)`,
     },
     {
-      title: "Avg Latency",
+      title: t("avgResponseTime"),
       value: kpiData.avgLatency.value,
       unit: kpiData.avgLatency.unit,
       change: kpiData.avgLatency.change,
@@ -56,7 +58,7 @@ export default function DashboardPage() {
       gradient: `linear-gradient(135deg, #22C55E 0%, #4ADE80 100%)`,
     },
     {
-      title: "Uptime",
+      title: t("uptime"),
       value: kpiData.uptime.value,
       unit: kpiData.uptime.unit,
       change: kpiData.uptime.change,
@@ -77,7 +79,7 @@ export default function DashboardPage() {
           variant="h4"
           sx={{ fontWeight: 800, mb: 3, letterSpacing: "-0.02em" }}
         >
-          Operations Console
+          {t("title")}
         </Typography>
       </motion.div>
 
@@ -119,10 +121,10 @@ export default function DashboardPage() {
               >
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Mail Volume
+                    {t("mailVolume")}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Last 14 days
+                    {t("last14Days")}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 2 }}>
@@ -136,7 +138,7 @@ export default function DashboardPage() {
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Received
+                      {t("received")}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -149,7 +151,7 @@ export default function DashboardPage() {
                       }}
                     />
                     <Typography variant="caption" color="text.secondary">
-                      Sent
+                      {t("sentLegend")}
                     </Typography>
                   </Box>
                 </Box>
@@ -193,7 +195,7 @@ export default function DashboardPage() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Delivery Status
+                  {t("deliveryStatus")}
                 </Typography>
               </Box>
               <Box
@@ -236,7 +238,7 @@ export default function DashboardPage() {
                 }}
               >
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Hourly Traffic
+                  {t("hourlyTraffic")}
                 </Typography>
               </Box>
               <Box sx={{ p: 3 }}>

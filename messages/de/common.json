@@ -32,5 +32,20 @@
   "permissions": "Berechtigungen",
   "users": "Benutzer",
   "overflow": "+N weitere",
-  "today": "Heute"
+  "today": "Heute",
+  "searchPlaceholder": "Suchen...",
+  "noDataFound": "Keine Daten gefunden",
+  "errorDescription": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+  "statusOperational": "Betriebsbereit",
+  "statusDegraded": "Eingeschränkt",
+  "statusOutage": "Ausfall",
+  "statusMaintenance": "Wartung",
+  "systemStatus": "Systemstatus",
+  "storage": "Speicher",
+  "recentActivity": "Letzte Aktivität",
+  "backToDashboard": "Zurück zum Dashboard",
+  "operational": "Betriebsbereit",
+  "degraded": "Eingeschränkt",
+  "outage": "Ausfall",
+  "maintenance": "Wartung"
 }

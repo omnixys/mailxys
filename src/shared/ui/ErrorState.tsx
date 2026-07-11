@@ -2,6 +2,7 @@
 
 import { ErrorOutlineRounded, RefreshRounded } from "@mui/icons-material";
 import { Box, Button, Typography, useTheme } from "@mui/material";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 interface ErrorStateProps {
   title?: string;
@@ -9,12 +10,11 @@ interface ErrorStateProps {
   onRetry?: () => void;
 }
 
-export function ErrorState({
-  title = "Something went wrong",
-  description = "An unexpected error occurred. Please try again.",
-  onRetry,
-}: ErrorStateProps) {
+export function ErrorState({ title, description, onRetry }: ErrorStateProps) {
   const theme = useTheme();
+  const t = useTypedTranslations("common");
+  const resolvedTitle = title ?? t("somethingWentWrong");
+  const resolvedDescription = description ?? t("errorDescription");
 
   return (
     <Box
@@ -43,14 +43,14 @@ export function ErrorState({
         <ErrorOutlineRounded sx={{ fontSize: 32, color: "error.main" }} />
       </Box>
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-        {title}
+        {resolvedTitle}
       </Typography>
       <Typography
         variant="body2"
         color="text.secondary"
         sx={{ maxWidth: 320, mb: 2 }}
       >
-        {description}
+        {resolvedDescription}
       </Typography>
       {onRetry && (
         <Button
@@ -58,7 +58,7 @@ export function ErrorState({
           variant="outlined"
           onClick={onRetry}
         >
-          Retry
+          {t("retry")}
         </Button>
       )}
     </Box>

@@ -90,5 +90,20 @@
   "goHome": "Go to homepage",
   "somethingWentWrong": "Something went wrong",
   "tryAgain": "Try again",
-  "comingSoon": "Coming soon"
+  "comingSoon": "Coming soon",
+  "searchPlaceholder": "Search...",
+  "noDataFound": "No data found",
+  "errorDescription": "An unexpected error occurred. Please try again.",
+  "statusOperational": "Operational",
+  "statusDegraded": "Degraded",
+  "statusOutage": "Outage",
+  "statusMaintenance": "Maintenance",
+  "systemStatus": "System Status",
+  "storage": "Storage",
+  "recentActivity": "Recent Activity",
+  "backToDashboard": "Back to Dashboard",
+  "operational": "Operational",
+  "degraded": "Degraded",
+  "outage": "Outage",
+  "maintenance": "Maintenance"
 }

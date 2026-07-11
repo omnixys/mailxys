@@ -27,6 +27,7 @@ import type {
   NotificationPriority,
   NotificationType,
 } from "@/features/notifications/types";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 const typeConfig: Record<
   NotificationType,
@@ -54,17 +55,8 @@ const typeConfig: Record<
   },
 };
 
-const priorityConfig: Record<
-  NotificationPriority,
-  { label: string; color: string; bg: string }
-> = {
-  urgent: { label: "Urgent", color: "#EF4444", bg: "#EF444415" },
-  high: { label: "High", color: "#F59E0B", bg: "#F59E0B15" },
-  normal: { label: "Normal", color: "#3B82F6", bg: "#3B82F615" },
-  low: { label: "Low", color: "#6B7280", bg: "#6B728015" },
-};
-
 export default function NotificationsPage() {
+  const t = useTypedTranslations("notifications");
   const theme = useTheme();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -87,6 +79,13 @@ export default function NotificationsPage() {
     setNotifications([]);
   };
 
+  const priorityLabels: Record<NotificationPriority, string> = {
+    urgent: t("urgent"),
+    high: t("high"),
+    normal: t("normal"),
+    low: t("low"),
+  };
+
   return (
     <Box>
       {/* Header */}
@@ -103,10 +102,12 @@ export default function NotificationsPage() {
             variant="h4"
             sx={{ fontWeight: 800, letterSpacing: "-0.02em" }}
           >
-            Notifications
+            {t("title")}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+            {unreadCount > 0
+              ? `${unreadCount} ${t("unread")}`
+              : t("noUnreadNotifications")}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1 }}>
@@ -116,7 +117,7 @@ export default function NotificationsPage() {
             startIcon={<FilterListRounded />}
             onClick={() => setFilter(filter === "all" ? "unread" : "all")}
           >
-            {filter === "all" ? "Unread" : "All"}
+            {filter === "all" ? t("unread") : t("all")}
           </Button>
           {unreadCount > 0 && (
             <Button
@@ -125,7 +126,7 @@ export default function NotificationsPage() {
               startIcon={<MarkEmailReadRounded />}
               onClick={markAllRead}
             >
-              Mark all read
+              {t("markAllRead")}
             </Button>
           )}
           <Button
@@ -135,7 +136,7 @@ export default function NotificationsPage() {
             startIcon={<DeleteSweepRounded />}
             onClick={clearAll}
           >
-            Clear all
+            {t("clearAll")}
           </Button>
         </Box>
       </Box>
@@ -148,8 +149,8 @@ export default function NotificationsPage() {
           />
           <Typography variant="h6" color="text.secondary">
             {filter === "unread"
-              ? "No unread notifications"
-              : "No notifications"}
+              ? t("noUnreadNotifications")
+              : t("noNotifications")}
           </Typography>
         </Box>
       ) : (
@@ -160,6 +161,7 @@ export default function NotificationsPage() {
               notification={notification}
               onMarkRead={markRead}
               theme={theme}
+              priorityLabel={priorityLabels[notification.priority]}
             />
           ))}
         </Box>
@@ -172,13 +174,14 @@ function NotificationItem({
   notification,
   onMarkRead,
   theme,
+  priorityLabel,
 }: {
   notification: Notification;
   onMarkRead: (id: string) => void;
   theme: Theme;
+  priorityLabel: string;
 }) {
   const type = typeConfig[notification.type];
-  const priority = priorityConfig[notification.priority];
 
   let relativeTime: string;
   try {
@@ -188,6 +191,23 @@ function NotificationItem({
   } catch {
     relativeTime = notification.timestamp;
   }
+
+  const priorityColor =
+    notification.priority === "urgent"
+      ? "#EF4444"
+      : notification.priority === "high"
+        ? "#F59E0B"
+        : notification.priority === "normal"
+          ? "#3B82F6"
+          : "#6B7280";
+  const priorityBg =
+    notification.priority === "urgent"
+      ? "#EF444415"
+      : notification.priority === "high"
+        ? "#F59E0B15"
+        : notification.priority === "normal"
+          ? "#3B82F615"
+          : "#6B728015";
 
   return (
     <Box
@@ -270,14 +290,14 @@ function NotificationItem({
         </Typography>
         <Box sx={{ mt: 0.75 }}>
           <Chip
-            label={priority.label}
+            label={priorityLabel}
             size="small"
             sx={{
               height: 18,
               fontSize: "0.65rem",
               fontWeight: 600,
-              bgcolor: priority.bg,
-              color: priority.color,
+              bgcolor: priorityBg,
+              color: priorityColor,
             }}
           />
         </Box>

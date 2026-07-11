@@ -11,5 +11,6 @@
   "noContacts": "Keine Kontakte",
   "noResults": "Keine Ergebnisse",
   "expandDetails": "Details aufklappen",
-  "collapseDetails": "Details zuklappen"
+  "collapseDetails": "Details zuklappen",
+  "contactsCount": "{count, plural, one {# Kontakt} other {# Kontakte}}"
 }

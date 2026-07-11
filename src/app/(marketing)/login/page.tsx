@@ -14,8 +14,10 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 export default function LoginPage() {
+  const t = useTypedTranslations("marketing");
   const theme = useTheme();
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -78,10 +80,10 @@ export default function LoginPage() {
               O
             </Box>
             <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Sign in to Omnixys Mail
+              {t("signIn")}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Enterprise email powered by Stalwart
+              {t("omnixysMail")}
             </Typography>
           </Box>
 
@@ -103,12 +105,12 @@ export default function LoginPage() {
               mb: 2,
             }}
           >
-            {loading ? "Redirecting to Keycloak..." : "Continue with SSO"}
+            {loading ? t("redirectToKeycloak") : t("continueWithSso")}
           </Button>
 
           <Divider sx={{ my: 2.5 }}>
             <Typography variant="caption" color="text.secondary">
-              or sign in with email
+              {t("orSignInWithEmail")}
             </Typography>
           </Divider>
 
@@ -116,7 +118,7 @@ export default function LoginPage() {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
-              label="Email address"
+              label={t("emailAddress")}
               placeholder="you@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -135,7 +137,7 @@ export default function LoginPage() {
                 borderRadius: 2,
               }}
             >
-              Send Magic Link
+              {t("sendMagicLink")}
             </Button>
           </Box>
 
@@ -145,7 +147,7 @@ export default function LoginPage() {
             color="text.secondary"
             sx={{ display: "block", textAlign: "center", mt: 3 }}
           >
-            Protected by Keycloak Identity Provider
+            {t("protectedBy")}
           </Typography>
         </CardContent>
       </Card>

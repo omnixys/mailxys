@@ -2,6 +2,7 @@
 
 import { Chip, type ChipProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 type StatusVariant = "operational" | "degraded" | "outage" | "maintenance";
 
@@ -10,14 +11,18 @@ interface StatusChipProps extends Omit<ChipProps, "color" | "variant"> {
   label?: string;
 }
 
-const statusConfig: Record<
-  StatusVariant,
-  { color: string; bg: string; label: string }
-> = {
-  operational: { color: "#22C55E", bg: "#22C55E15", label: "Operational" },
-  degraded: { color: "#F59E0B", bg: "#F59E0B15", label: "Degraded" },
-  outage: { color: "#EF4444", bg: "#EF444415", label: "Outage" },
-  maintenance: { color: "#3B82F6", bg: "#3B82F615", label: "Maintenance" },
+const statusColorMap: Record<StatusVariant, { color: string; bg: string }> = {
+  operational: { color: "#22C55E", bg: "#22C55E15" },
+  degraded: { color: "#F59E0B", bg: "#F59E0B15" },
+  outage: { color: "#EF4444", bg: "#EF444415" },
+  maintenance: { color: "#3B82F6", bg: "#3B82F615" },
+};
+
+const statusKeyMap: Record<StatusVariant, string> = {
+  operational: "statusOperational",
+  degraded: "statusDegraded",
+  outage: "statusOutage",
+  maintenance: "statusMaintenance",
 };
 
 const StyledChip = styled(Chip, {
@@ -40,12 +45,13 @@ const StyledChip = styled(Chip, {
 }));
 
 export function StatusChip({ status, label, ...props }: StatusChipProps) {
-  const config = statusConfig[status];
+  const t = useTypedTranslations("common");
+  const config = statusColorMap[status];
   return (
     <StyledChip
       statusColor={config.color}
       statusBg={config.bg}
-      label={label ?? config.label}
+      label={label ?? t(statusKeyMap[status] as never)}
       {...props}
     />
   );

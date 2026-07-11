@@ -22,10 +22,12 @@ import {
 } from "@mui/material";
 import { format, parseISO } from "date-fns";
 import { useMemo } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
 
 export function MessageDetail() {
   const theme = useTheme();
+  const t = useTypedTranslations("mail");
   const { emails, selectedEmailId, openCompose } = useMailStore();
   const email = useMemo(
     () => emails.find((e) => e.id === selectedEmailId) ?? null,
@@ -46,19 +48,18 @@ export function MessageDetail() {
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          Select a message
+          {t("noMessageSelected")}
         </Typography>
-        <Typography variant="body2">
-          Choose a conversation from the list
-        </Typography>
+        <Typography variant="body2">{t("chooseConversation")}</Typography>
       </Box>
     );
   }
 
-  const senderName = email.from[0]?.name ?? email.from[0]?.email ?? "Unknown";
+  const senderName =
+    email.from[0]?.name ?? email.from[0]?.email ?? t("unknownSender");
   const senderEmail = email.from[0]?.email ?? "";
   const senderInitial = senderName.charAt(0).toUpperCase();
-  const bodyText = email.bodyValues.t1?.value ?? "No content available.";
+  const bodyText = email.bodyValues.t1?.value ?? t("noContent");
   const isFlagged = !!email.keywords.$flagged;
 
   const senderColors = [
@@ -113,7 +114,7 @@ export function MessageDetail() {
               subject: `Re: ${email.subject}`,
             })
           }
-          title="Reply"
+          title={t("reply")}
         >
           <ReplyRounded sx={{ fontSize: "1.25rem" }} />
         </IconButton>
@@ -126,7 +127,7 @@ export function MessageDetail() {
               subject: `Re: ${email.subject}`,
             })
           }
-          title="Reply All"
+          title={t("replyAll")}
         >
           <ReplyAllRounded sx={{ fontSize: "1.25rem" }} />
         </IconButton>
@@ -139,7 +140,7 @@ export function MessageDetail() {
               body: bodyText,
             })
           }
-          title="Forward"
+          title={t("forward")}
         >
           <ForwardRounded sx={{ fontSize: "1.25rem" }} />
         </IconButton>
@@ -205,7 +206,7 @@ export function MessageDetail() {
         {/* Recipients */}
         <Box sx={{ mb: 2 }}>
           <Typography variant="caption" color="text.secondary" component="span">
-            To:{" "}
+            {t("toLabel")}&nbsp;
           </Typography>
           <Typography variant="caption" component="span">
             {toRecipients}
@@ -218,7 +219,7 @@ export function MessageDetail() {
                 color="text.secondary"
                 component="span"
               >
-                Cc:{" "}
+                {t("ccLabel")}&nbsp;
               </Typography>
               <Typography variant="caption" component="span">
                 {ccRecipients}

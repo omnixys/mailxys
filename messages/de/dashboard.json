@@ -20,5 +20,9 @@
   "allServicesOperational": "Alle Dienste aktiv",
   "someIssuesDetected": "Einige Probleme erkannt",
   "composeNewEmail": "Neue E-Mail verfassen",
-  "viewAll": "Alle anzeigen"
+  "viewAll": "Alle anzeigen",
+  "totalEmails": "E-Mails Gesamt",
+  "last14Days": "Letzte 14 Tage",
+  "received": "Empfangen",
+  "sentLegend": "Gesendet"
 }

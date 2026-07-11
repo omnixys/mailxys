@@ -16,5 +16,6 @@
   "fri": "Fr",
   "sat": "Sa",
   "location": "Ort",
-  "description": "Beschreibung"
+  "description": "Beschreibung",
+  "eventsCount": "{count, plural, one {# Ereignis} other {# Ereignisse}}"
 }

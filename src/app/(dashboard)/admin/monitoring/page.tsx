@@ -8,6 +8,7 @@ import {
 } from "@mui/icons-material";
 import { Box, Grid, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { DashboardAreaChart } from "@/shared/charts/DashboardAreaChart";
 import { DashboardBarChart } from "@/shared/charts/DashboardBarChart";
 import { KpiCard } from "@/shared/ui/KpiCard";
@@ -44,6 +45,7 @@ const latencyData = [
 
 export default function MonitoringPage() {
   const theme = useTheme();
+  const t = useTypedTranslations("admin");
 
   return (
     <Box>
@@ -56,18 +58,18 @@ export default function MonitoringPage() {
           variant="h4"
           sx={{ fontWeight: 800, mb: 3, letterSpacing: "-0.02em" }}
         >
-          Monitoring
+          {t("monitoringTitle")}
         </Typography>
       </motion.div>
 
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <KpiCard
-            title="Delivery Rate"
+            title={t("deliveryThroughput")}
             value="99.1"
             unit="%"
             change={0.3}
-            period="last 24h"
+            period={t("last24h")}
             icon={<MailRounded sx={{ fontSize: "1.25rem" }} />}
             gradient="linear-gradient(135deg, #22C55E 0%, #4ADE80 100%)"
             index={0}
@@ -75,11 +77,11 @@ export default function MonitoringPage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <KpiCard
-            title="Avg Latency"
+            title={t("avgDeliveryTime")}
             value="42"
             unit="ms"
             change={-15.3}
-            period="vs last week"
+            period={t("vsLastWeek")}
             icon={<SpeedRounded sx={{ fontSize: "1.25rem" }} />}
             gradient="linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)"
             index={1}
@@ -87,10 +89,10 @@ export default function MonitoringPage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <KpiCard
-            title="Queue Depth"
+            title={t("queueItems")}
             value="23"
             change={-8.1}
-            period="vs yesterday"
+            period={t("vsYesterday")}
             icon={<TimerRounded sx={{ fontSize: "1.25rem" }} />}
             gradient={`linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`}
             index={2}
@@ -98,11 +100,11 @@ export default function MonitoringPage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
           <KpiCard
-            title="Storage I/O"
+            title={t("storageUsed")}
             value="128"
             unit="MB/s"
             change={5.2}
-            period="vs last hour"
+            period={t("vsLastHour")}
             icon={<StorageRounded sx={{ fontSize: "1.25rem" }} />}
             gradient="linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)"
             index={3}
@@ -128,7 +130,7 @@ export default function MonitoringPage() {
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Delivery Throughput
+                {t("deliveryThroughput")}
               </Typography>
             </Box>
             <Box sx={{ p: 3 }}>
@@ -161,7 +163,7 @@ export default function MonitoringPage() {
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Protocol Latency
+                {t("protocolLatency")}
               </Typography>
             </Box>
             <Box sx={{ p: 3 }}>

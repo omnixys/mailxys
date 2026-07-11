@@ -15,10 +15,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
 
 export function MailToolbar() {
   const theme = useTheme();
+  const t = useTypedTranslations("mail");
   const {
     searchQuery,
     setSearchQuery,
@@ -45,7 +47,7 @@ export function MailToolbar() {
         variant="h6"
         sx={{ fontWeight: 700, mr: 1, whiteSpace: "nowrap" }}
       >
-        {mailbox?.name ?? "Mail"}
+        {mailbox?.name ?? t("folderMail")}
       </Typography>
 
       {/* Search */}
@@ -64,7 +66,7 @@ export function MailToolbar() {
       >
         <SearchRounded sx={{ fontSize: "1.125rem", color: "text.secondary" }} />
         <InputBase
-          placeholder="Search mail..."
+          placeholder={t("searchMailPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           sx={{
@@ -78,19 +80,19 @@ export function MailToolbar() {
       <Box sx={{ flex: 1 }} />
 
       {/* Actions */}
-      <IconButton size="small" title="Select all">
+      <IconButton size="small" title={t("selectAll")}>
         <SelectAllRounded sx={{ fontSize: "1.25rem" }} />
       </IconButton>
-      <IconButton size="small" title="Filter">
+      <IconButton size="small" title={t("filter")}>
         <FilterListRounded sx={{ fontSize: "1.25rem" }} />
       </IconButton>
-      <IconButton size="small" title="Refresh">
+      <IconButton size="small" title={t("refresh")}>
         <RefreshRounded sx={{ fontSize: "1.25rem" }} />
       </IconButton>
       <IconButton
         size="small"
         onClick={() => openCompose({ mode: "new" })}
-        title="Compose"
+        title={t("compose")}
         sx={{
           bgcolor: theme.palette.primary.main,
           color: "#fff",

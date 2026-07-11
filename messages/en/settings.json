@@ -17,6 +17,7 @@
   "activeSessionsDesc": "Manage devices where you are currently signed in",
   "deleteAccount": "Delete Account",
   "deleteAccountDesc": "Permanently delete your account and all associated data",
+  "delete": "Delete",
   "editProfile": "Edit Profile",
   "currentlyDark": "Currently dark",
   "currentlyLight": "Currently light",

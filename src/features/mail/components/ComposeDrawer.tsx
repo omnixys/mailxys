@@ -17,10 +17,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
 
 export function ComposeDrawer() {
   const theme = useTheme();
+  const t = useTypedTranslations("mail");
   const { composeOpen, composeData, closeCompose } = useMailStore();
 
   const [to, setTo] = useState(composeData?.to ?? "");
@@ -63,12 +65,12 @@ export function ComposeDrawer() {
       >
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
           {composeData?.mode === "reply"
-            ? "Reply"
+            ? t("reply")
             : composeData?.mode === "replyAll"
-              ? "Reply All"
+              ? t("replyAll")
               : composeData?.mode === "forward"
-                ? "Forward"
-                : "New Message"}
+                ? t("forward")
+                : t("composeNew")}
         </Typography>
         <IconButton size="small" onClick={closeCompose}>
           <CloseRounded sx={{ fontSize: "1.25rem" }} />
@@ -80,7 +82,7 @@ export function ComposeDrawer() {
         <TextField
           fullWidth
           size="small"
-          placeholder="To"
+          placeholder={t("to")}
           value={to}
           onChange={(e) => setTo(e.target.value)}
           variant="standard"
@@ -91,7 +93,7 @@ export function ComposeDrawer() {
         <TextField
           fullWidth
           size="small"
-          placeholder="Subject"
+          placeholder={t("subject")}
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           variant="standard"
@@ -126,7 +128,7 @@ export function ComposeDrawer() {
       <TextField
         fullWidth
         multiline
-        placeholder="Write your message..."
+        placeholder={t("writeBody")}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         variant="standard"
@@ -158,7 +160,7 @@ export function ComposeDrawer() {
         }}
       >
         <Typography variant="caption" color="text.secondary">
-          Draft auto-saved
+          {t("draftSaved")}
         </Typography>
         <IconButton
           onClick={handleSend}
@@ -172,7 +174,7 @@ export function ComposeDrawer() {
         >
           <SendRounded sx={{ fontSize: "1.125rem", mr: 0.5 }} />
           <Typography variant="body2" sx={{ fontWeight: 600, color: "#fff" }}>
-            Send
+            {t("send")}
           </Typography>
         </IconButton>
       </Box>

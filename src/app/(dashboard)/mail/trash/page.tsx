@@ -1,11 +1,15 @@
+"use client";
+
 import { DeleteRounded } from "@mui/icons-material";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import PlaceholderPage from "../PlaceholderPage";
 
 export default function TrashPage() {
+  const t = useTypedTranslations("mail");
   return (
     <PlaceholderPage
-      title="Trash"
-      description="Deleted emails are moved here. JMAP integration coming soon."
+      title={t("trashedMessages")}
+      description={t("trashDesc")}
       icon={<DeleteRounded sx={{ fontSize: 32 }} />}
     />
   );

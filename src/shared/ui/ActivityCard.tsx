@@ -7,6 +7,7 @@ import {
 } from "@mui/icons-material";
 import { Box, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
 interface Activity {
   id: string;
@@ -27,6 +28,7 @@ const typeIcon = {
 
 export function ActivityCard({ activities }: ActivityCardProps) {
   const theme = useTheme();
+  const t = useTypedTranslations("common");
 
   return (
     <motion.div
@@ -50,7 +52,7 @@ export function ActivityCard({ activities }: ActivityCardProps) {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Recent Activity
+            {t("recentActivity")}
           </Typography>
         </Box>
         <Box sx={{ p: 0 }}>

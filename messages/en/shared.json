@@ -24,5 +24,8 @@
   "feedback": "Feedback",
   "keyboardShortcuts": "Keyboard Shortcuts",
   "about": "About Omnixys Mail",
-  "version": "Version {version}"
+  "version": "Version {version}",
+  "headerSearch": "Search...",
+  "logout": "Logout",
+  "settings": "Settings"
 }
