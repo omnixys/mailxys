@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { usePermissions } from "@/auth/providers/PermissionProvider";
+import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { navItems } from "@/shared/navigation/navItems";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import SidebarItem from "./SidebarItem";
@@ -24,6 +25,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed } = useSidebarStore();
   const { hasAnyPermission } = usePermissions();
+  const t = useTypedTranslations("nav");
 
   const filteredSections = useMemo(() => {
     return navItems
@@ -120,7 +122,7 @@ export default function Sidebar() {
         }}
       >
         {filteredSections.map((section) => (
-          <Box key={section.section} sx={{ mb: 1 }}>
+          <Box key={section.sectionKey} sx={{ mb: 1 }}>
             {!isCollapsed && (
               <Typography
                 variant="caption"
@@ -135,7 +137,7 @@ export default function Sidebar() {
                   fontSize: "0.6875rem",
                 }}
               >
-                {section.section}
+                {t(section.sectionKey as never)}
               </Typography>
             )}
             {section.items.map((item) => (
@@ -144,6 +146,7 @@ export default function Sidebar() {
                 item={item}
                 isActive={pathname === item.path}
                 isCollapsed={isCollapsed}
+                label={t(item.labelKey as never)}
               />
             ))}
           </Box>

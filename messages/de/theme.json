@@ -1,0 +1,5 @@
+{
+  "lightMode": "Heller Modus",
+  "darkMode": "Dunkler Modus",
+  "switchTo": "Zu {{mode}} wechseln"
+}

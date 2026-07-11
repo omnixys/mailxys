@@ -1,0 +1,8 @@
+{
+  "lightMode": "Light",
+  "darkMode": "Dark",
+  "switchTo": "Switch to {mode}",
+  "systemDefault": "System Default",
+  "followSystem": "Follow system",
+  "themeChanged": "Theme changed to {mode}"
+}

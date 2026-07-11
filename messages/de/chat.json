@@ -1,0 +1,12 @@
+{
+  "title": "Chat",
+  "searchPlaceholder": "Nachricht eingeben...",
+  "typeMessage": "Nachricht schreiben...",
+  "online": "Online",
+  "busy": "Beschäftigt",
+  "offline": "Offline",
+  "members": "Mitglieder",
+  "channels": "Kanäle",
+  "noMessages": "Keine Nachrichten",
+  "sendMessage": "Nachricht senden"
+}

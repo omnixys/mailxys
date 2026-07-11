@@ -1,0 +1,12 @@
+{
+  "searchCommandPalette": "Suchen...",
+  "commandPaletteHint": "Befehl eingeben oder suchen...",
+  "mailModule": "E-Mail-Modul",
+  "adminModule": "Admin-Modul",
+  "settingsModule": "Einstellungsmodul",
+  "navigation": "Navigation",
+  "toggleSidebar": "Seitenleiste umschalten",
+  "userMenu": "Benutzermenü",
+  "profile": "Profil",
+  "signOut": "Abmelden"
+}

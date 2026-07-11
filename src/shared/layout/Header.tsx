@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useAuth } from "@/auth/providers/AuthProvider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
 import { useCommandPaletteStore } from "@/store/useCommandPaletteStore";
 
@@ -108,6 +109,8 @@ export default function Header() {
             <LightModeRounded fontSize="small" />
           )}
         </IconButton>
+
+        <LanguageSwitcher />
 
         <IconButton size="small" sx={{ color: "text.secondary" }}>
           <Badge badgeContent={3} color="primary" variant="dot">

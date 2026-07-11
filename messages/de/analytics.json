@@ -1,0 +1,20 @@
+{
+  "title": "Analytik",
+  "subtitle": "E-Mail-Statistiken und Systemmetriken",
+  "totalSent": "Gesamt gesendet",
+  "totalReceived": "Gesamt empfangen",
+  "bounceRate": "Absprungrate",
+  "avgDeliveryTime": "Ø Zustellungszeit",
+  "emailVolume": "E-Mail-Volumen",
+  "topSenders": "Top-Absender",
+  "topReceivers": "Top-Empfänger",
+  "domainDistribution": "Domänenverteilung",
+  "storageGrowth": "Speicherwachstum",
+  "bounceByHour": "Absprünge nach Stunde",
+  "last7days": "Letzte 7 Tage",
+  "last30days": "Letzte 30 Tage",
+  "last90days": "Letzte 90 Tage",
+  "emails": "E-Mails",
+  "capacityUsed": "Kapazität belegt",
+  "storageOverTime": "Speicher über Zeit"
+}

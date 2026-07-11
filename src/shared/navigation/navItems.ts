@@ -29,7 +29,7 @@ import { PERMISSIONS } from "@/auth/rbac/permissions";
 import { ROUTES } from "@/constants/routes";
 
 export interface NavItem {
-  label: string;
+  labelKey: string;
   icon: ElementType;
   path: string;
   permissions?: Permission[];
@@ -37,62 +37,62 @@ export interface NavItem {
 }
 
 export interface NavSection {
-  section: string;
+  sectionKey: string;
   items: NavItem[];
 }
 
 export const navItems: NavSection[] = [
   {
-    section: "Main",
+    sectionKey: "sectionMain",
     items: [
       {
-        label: "Dashboard",
+        labelKey: "dashboard",
         icon: DashboardRounded,
         path: ROUTES.DASHBOARD,
       },
     ],
   },
   {
-    section: "Mail",
+    sectionKey: "sectionMail",
     items: [
       {
-        label: "Inbox",
+        labelKey: "inbox",
         icon: InboxRounded,
         path: ROUTES.MAIL.INBOX,
         permissions: [PERMISSIONS.MAIL_READ],
       },
       {
-        label: "Sent",
+        labelKey: "sent",
         icon: SendRounded,
         path: ROUTES.MAIL.SENT,
         permissions: [PERMISSIONS.MAIL_READ],
       },
       {
-        label: "Drafts",
+        labelKey: "drafts",
         icon: DraftsRounded,
         path: ROUTES.MAIL.DRAFTS,
         permissions: [PERMISSIONS.MAIL_READ],
       },
       {
-        label: "Archive",
+        labelKey: "archive",
         icon: ArchiveRounded,
         path: ROUTES.MAIL.ARCHIVE,
         permissions: [PERMISSIONS.MAIL_READ],
       },
       {
-        label: "Spam",
+        labelKey: "spam",
         icon: ReportRounded,
         path: ROUTES.MAIL.SPAM,
         permissions: [PERMISSIONS.MAIL_READ],
       },
       {
-        label: "Trash",
+        labelKey: "trash",
         icon: DeleteRounded,
         path: ROUTES.MAIL.TRASH,
         permissions: [PERMISSIONS.MAIL_READ],
       },
       {
-        label: "Compose",
+        labelKey: "compose",
         icon: EditRounded,
         path: ROUTES.MAIL.COMPOSE,
         permissions: [PERMISSIONS.MAIL_SEND],
@@ -100,52 +100,52 @@ export const navItems: NavSection[] = [
     ],
   },
   {
-    section: "Administration",
+    sectionKey: "sectionAdmin",
     items: [
       {
-        label: "Users",
+        labelKey: "users",
         icon: PeopleRounded,
         path: ROUTES.ADMIN.USERS,
         permissions: [PERMISSIONS.ADMIN_USERS_READ],
       },
       {
-        label: "Domains",
+        labelKey: "domains",
         icon: LanguageRounded,
         path: ROUTES.ADMIN.DOMAINS,
         permissions: [PERMISSIONS.ADMIN_DOMAINS_READ],
       },
       {
-        label: "Aliases",
+        labelKey: "aliases",
         icon: AlternateEmailRounded,
         path: ROUTES.ADMIN.ALIASES,
         permissions: [PERMISSIONS.ADMIN_DOMAINS_READ],
       },
       {
-        label: "Groups",
+        labelKey: "groups",
         icon: GroupRounded,
         path: ROUTES.ADMIN.GROUPS,
         permissions: [PERMISSIONS.ADMIN_USERS_READ],
       },
       {
-        label: "Roles",
+        labelKey: "roles",
         icon: ShieldRounded,
         path: ROUTES.ADMIN.ROLES,
         permissions: [PERMISSIONS.ADMIN_ROLES],
       },
       {
-        label: "Quotas",
+        labelKey: "quotas",
         icon: PieChartRounded,
         path: ROUTES.ADMIN.QUOTAS,
         permissions: [PERMISSIONS.ADMIN_QUOTAS],
       },
       {
-        label: "Queue",
+        labelKey: "queue",
         icon: QueueRounded,
         path: ROUTES.ADMIN.QUEUE,
         permissions: [PERMISSIONS.ADMIN_QUEUE_READ],
       },
       {
-        label: "Monitoring",
+        labelKey: "monitoring",
         icon: MonitorRounded,
         path: ROUTES.ADMIN.MONITORING,
         permissions: [PERMISSIONS.ADMIN_MONITORING],
@@ -153,51 +153,51 @@ export const navItems: NavSection[] = [
     ],
   },
   {
-    section: "Communication",
+    sectionKey: "sectionCommunication",
     items: [
       {
-        label: "Chat",
+        labelKey: "chat",
         icon: ChatRounded,
         path: ROUTES.CHAT,
       },
       {
-        label: "Notifications",
+        labelKey: "notifications",
         icon: NotificationsRounded,
         path: ROUTES.NOTIFICATIONS,
       },
     ],
   },
   {
-    section: "Personal",
+    sectionKey: "sectionPersonal",
     items: [
       {
-        label: "Calendar",
+        labelKey: "calendar",
         icon: CalendarMonthRounded,
         path: ROUTES.CALENDAR,
       },
       {
-        label: "Contacts",
+        labelKey: "contacts",
         icon: ContactsRounded,
         path: ROUTES.CONTACTS,
       },
     ],
   },
   {
-    section: "System",
+    sectionKey: "sectionSystem",
     items: [
       {
-        label: "Analytics",
+        labelKey: "analytics",
         icon: AnalyticsRounded,
         path: ROUTES.ANALYTICS,
         permissions: [PERMISSIONS.SYSTEM_ANALYTICS],
       },
       {
-        label: "Settings",
+        labelKey: "settings",
         icon: SettingsRounded,
         path: ROUTES.SETTINGS,
       },
       {
-        label: "Help",
+        labelKey: "help",
         icon: HelpRounded,
         path: ROUTES.HELP,
       },

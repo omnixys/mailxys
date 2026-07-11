@@ -14,12 +14,14 @@ interface SidebarItemProps {
   item: NavItem;
   isActive: boolean;
   isCollapsed: boolean;
+  label: string;
 }
 
 export default function SidebarItem({
   item,
   isActive,
   isCollapsed,
+  label,
 }: SidebarItemProps) {
   const theme = useTheme();
   const Icon = item.icon;
@@ -80,7 +82,7 @@ export default function SidebarItem({
       </ListItemIcon>
       {!isCollapsed && (
         <ListItemText
-          primary={item.label}
+          primary={label}
           slotProps={{
             primary: {
               sx: {

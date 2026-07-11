@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 
 import { AuthProviders } from "@/auth/AuthProviders";
@@ -27,17 +29,22 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
+  const locale = await getLocale();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body>
         <ThemeRegistry>
           <ThemeModeProvider>
-            <AuthProviders>{children}</AuthProviders>
+            <NextIntlClientProvider messages={messages}>
+              <AuthProviders>{children}</AuthProviders>
+            </NextIntlClientProvider>
           </ThemeModeProvider>
         </ThemeRegistry>
       </body>

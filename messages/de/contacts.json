@@ -1,0 +1,15 @@
+{
+  "title": "Kontakte",
+  "subtitle": "Kontaktverwalter",
+  "searchPlaceholder": "Kontakte durchsuchen...",
+  "addContact": "Kontakt hinzufügen",
+  "phone": "Telefon",
+  "organization": "Organisation",
+  "notes": "Notizen",
+  "created": "Erstellt",
+  "updated": "Aktualisiert",
+  "noContacts": "Keine Kontakte",
+  "noResults": "Keine Ergebnisse",
+  "expandDetails": "Details aufklappen",
+  "collapseDetails": "Details zuklappen"
+}

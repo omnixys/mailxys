@@ -1,0 +1,20 @@
+{
+  "title": "Kalender",
+  "subtitle": "Termine und Ereignisse verwalten",
+  "month": "Monat",
+  "week": "Woche",
+  "day": "Tag",
+  "agenda": "Agenda",
+  "today": "Heute",
+  "noEvents": "Keine Ereignisse",
+  "eventsOnDay": "Ereignisse am",
+  "sun": "So",
+  "mon": "Mo",
+  "tue": "Di",
+  "wed": "Mi",
+  "thu": "Do",
+  "fri": "Fr",
+  "sat": "Sa",
+  "location": "Ort",
+  "description": "Beschreibung"
+}

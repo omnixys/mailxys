@@ -1,0 +1,17 @@
+{
+  "title": "Benachrichtigungen",
+  "markAllRead": "Alle als gelesen markieren",
+  "clearAll": "Alle löschen",
+  "unread": "Ungelesen",
+  "all": "Alle",
+  "noNotifications": "Keine Benachrichtigungen",
+  "noUnreadNotifications": "Keine ungelesenen Benachrichtigungen",
+  "mailNotification": "E-Mail-Benachrichtigung",
+  "securityNotification": "Sicherheitsbenachrichtigung",
+  "systemNotification": "Systembenachrichtigung",
+  "adminNotification": "Admin-Benachrichtigung",
+  "urgent": "Dringend",
+  "high": "Hoch",
+  "normal": "Normal",
+  "low": "Niedrig"
+}
