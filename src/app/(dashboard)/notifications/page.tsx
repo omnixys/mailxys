@@ -1,12 +1,287 @@
-import { NotificationsRounded } from "@mui/icons-material";
-import PlaceholderPage from "../mail/PlaceholderPage";
+"use client";
+
+import {
+  DeleteSweepRounded,
+  FilterListRounded,
+  InfoRounded,
+  MailRounded,
+  MarkEmailReadRounded,
+  SecurityRounded,
+  SettingsRounded,
+  WarningRounded,
+} from "@mui/icons-material";
+import {
+  alpha,
+  Box,
+  Button,
+  Chip,
+  type Theme,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { formatDistanceToNow, parseISO } from "date-fns";
+import { useState } from "react";
+import { mockNotifications } from "@/features/notifications/constants/mockData";
+import type {
+  Notification,
+  NotificationPriority,
+  NotificationType,
+} from "@/features/notifications/types";
+
+const typeConfig: Record<
+  NotificationType,
+  { icon: React.ReactNode; color: string; bg: string }
+> = {
+  mail: {
+    icon: <MailRounded sx={{ fontSize: "1.125rem" }} />,
+    color: "#6A4BBC",
+    bg: "#6A4BBC15",
+  },
+  security: {
+    icon: <SecurityRounded sx={{ fontSize: "1.125rem" }} />,
+    color: "#EF4444",
+    bg: "#EF444415",
+  },
+  system: {
+    icon: <SettingsRounded sx={{ fontSize: "1.125rem" }} />,
+    color: "#3B82F6",
+    bg: "#3B82F615",
+  },
+  admin: {
+    icon: <WarningRounded sx={{ fontSize: "1.125rem" }} />,
+    color: "#F59E0B",
+    bg: "#F59E0B15",
+  },
+};
+
+const priorityConfig: Record<
+  NotificationPriority,
+  { label: string; color: string; bg: string }
+> = {
+  urgent: { label: "Urgent", color: "#EF4444", bg: "#EF444415" },
+  high: { label: "High", color: "#F59E0B", bg: "#F59E0B15" },
+  normal: { label: "Normal", color: "#3B82F6", bg: "#3B82F615" },
+  low: { label: "Low", color: "#6B7280", bg: "#6B728015" },
+};
 
 export default function NotificationsPage() {
+  const theme = useTheme();
+  const [notifications, setNotifications] = useState(mockNotifications);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  const filtered =
+    filter === "unread" ? notifications.filter((n) => !n.read) : notifications;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const markRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+  };
+
+  const clearAll = () => {
+    setNotifications([]);
+  };
+
   return (
-    <PlaceholderPage
-      title="Notifications"
-      description="View all notifications from mail, system, and security. Coming soon."
-      icon={<NotificationsRounded sx={{ fontSize: 32 }} />}
-    />
+    <Box>
+      {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          mb: 3,
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 800, letterSpacing: "-0.02em" }}
+          >
+            Notifications
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<FilterListRounded />}
+            onClick={() => setFilter(filter === "all" ? "unread" : "all")}
+          >
+            {filter === "all" ? "Unread" : "All"}
+          </Button>
+          {unreadCount > 0 && (
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<MarkEmailReadRounded />}
+              onClick={markAllRead}
+            >
+              Mark all read
+            </Button>
+          )}
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteSweepRounded />}
+            onClick={clearAll}
+          >
+            Clear all
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Notification List */}
+      {filtered.length === 0 ? (
+        <Box sx={{ textAlign: "center", py: 8 }}>
+          <InfoRounded
+            sx={{ fontSize: 48, color: "text.secondary", opacity: 0.4, mb: 1 }}
+          />
+          <Typography variant="h6" color="text.secondary">
+            {filter === "unread"
+              ? "No unread notifications"
+              : "No notifications"}
+          </Typography>
+        </Box>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          {filtered.map((notification) => (
+            <NotificationItem
+              key={notification.id}
+              notification={notification}
+              onMarkRead={markRead}
+              theme={theme}
+            />
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+function NotificationItem({
+  notification,
+  onMarkRead,
+  theme,
+}: {
+  notification: Notification;
+  onMarkRead: (id: string) => void;
+  theme: Theme;
+}) {
+  const type = typeConfig[notification.type];
+  const priority = priorityConfig[notification.priority];
+
+  let relativeTime: string;
+  try {
+    relativeTime = formatDistanceToNow(parseISO(notification.timestamp), {
+      addSuffix: true,
+    });
+  } catch {
+    relativeTime = notification.timestamp;
+  }
+
+  return (
+    <Box
+      onClick={() => !notification.read && onMarkRead(notification.id)}
+      sx={{
+        display: "flex",
+        gap: 2,
+        px: 3,
+        py: 2,
+        borderRadius: 2,
+        cursor: "pointer",
+        bgcolor: notification.read
+          ? "transparent"
+          : alpha(theme.palette.primary.main, 0.03),
+        border: `1px solid ${notification.read ? "transparent" : alpha(theme.palette.primary.main, 0.08)}`,
+        transition: "all 150ms ease",
+        "&:hover": {
+          bgcolor: alpha(theme.palette.action.active, 0.04),
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: 36,
+          height: 36,
+          borderRadius: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: type.bg,
+          color: type.color,
+          flexShrink: 0,
+          mt: 0.25,
+        }}
+      >
+        {type.icon}
+      </Box>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.25 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: notification.read ? 500 : 700,
+              flex: 1,
+            }}
+          >
+            {notification.title}
+          </Typography>
+          {!notification.read && (
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: theme.palette.primary.main,
+                flexShrink: 0,
+              }}
+            />
+          )}
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ flexShrink: 0 }}
+          >
+            {relativeTime}
+          </Typography>
+        </Box>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            fontSize: "0.8125rem",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {notification.message}
+        </Typography>
+        <Box sx={{ mt: 0.75 }}>
+          <Chip
+            label={priority.label}
+            size="small"
+            sx={{
+              height: 18,
+              fontSize: "0.65rem",
+              fontWeight: 600,
+              bgcolor: priority.bg,
+              color: priority.color,
+            }}
+          />
+        </Box>
+      </Box>
+    </Box>
   );
 }

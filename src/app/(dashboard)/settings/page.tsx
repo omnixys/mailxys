@@ -1,12 +1,279 @@
-import { SettingsRounded } from "@mui/icons-material";
-import PlaceholderPage from "../mail/PlaceholderPage";
+"use client";
+
+import {
+  DarkModeRounded,
+  LanguageRounded,
+  LightModeRounded,
+  NotificationsRounded,
+  PaletteRounded,
+  SecurityRounded,
+} from "@mui/icons-material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  FormControl,
+  MenuItem,
+  Select,
+  Switch,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { useState } from "react";
+import { useThemeMode } from "@/providers/ThemeModeProvider";
 
 export default function SettingsPage() {
+  const theme = useTheme();
+  const { mode, toggleMode } = useThemeMode();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [emailDigest, setEmailDigest] = useState("daily");
+  const [language, setLanguage] = useState("en");
+
   return (
-    <PlaceholderPage
-      title="Settings"
-      description="Application and account settings. Coming soon."
-      icon={<SettingsRounded sx={{ fontSize: 32 }} />}
-    />
+    <Box sx={{ maxWidth: 720 }}>
+      <Typography
+        variant="h4"
+        sx={{ fontWeight: 800, mb: 3, letterSpacing: "-0.02em" }}
+      >
+        Settings
+      </Typography>
+
+      {/* Profile Section */}
+      <Card sx={{ mb: 3, border: `1px solid ${theme.palette.divider}` }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+            <Avatar
+              sx={{
+                width: 56,
+                height: 56,
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                bgcolor: theme.palette.primary.main,
+                color: "#fff",
+              }}
+            >
+              A
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Admin User
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                admin@omnixys.com
+              </Typography>
+            </Box>
+          </Box>
+          <Button variant="outlined" size="small">
+            Edit Profile
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Appearance Section */}
+      <Card sx={{ mb: 3, border: `1px solid ${theme.palette.divider}` }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <PaletteRounded sx={{ color: "primary.main" }} />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Appearance
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              {mode === "dark" ? <DarkModeRounded /> : <LightModeRounded />}
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Dark Mode
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {mode === "dark"
+                    ? "Currently using dark theme"
+                    : "Currently using light theme"}
+                </Typography>
+              </Box>
+            </Box>
+            <Switch checked={mode === "dark"} onChange={toggleMode} />
+          </Box>
+          <Divider sx={{ my: 1 }} />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <LanguageRounded />
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Language
+              </Typography>
+            </Box>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <Select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                variant="outlined"
+                size="small"
+              >
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="de">Deutsch</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Notifications Section */}
+      <Card sx={{ mb: 3, border: `1px solid ${theme.palette.divider}` }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <NotificationsRounded sx={{ color: "primary.main" }} />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Notifications
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Push Notifications
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Receive browser notifications for new emails
+              </Typography>
+            </Box>
+            <Switch
+              checked={notificationsEnabled}
+              onChange={(e) => setNotificationsEnabled(e.target.checked)}
+            />
+          </Box>
+          <Divider sx={{ my: 1 }} />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Email Digest
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                How often to receive summary emails
+              </Typography>
+            </Box>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <Select
+                value={emailDigest}
+                onChange={(e) => setEmailDigest(e.target.value)}
+                variant="outlined"
+                size="small"
+              >
+                <MenuItem value="realtime">Real-time</MenuItem>
+                <MenuItem value="daily">Daily</MenuItem>
+                <MenuItem value="weekly">Weekly</MenuItem>
+                <MenuItem value="never">Never</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Security Section */}
+      <Card sx={{ border: `1px solid ${theme.palette.divider}` }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+            <SecurityRounded sx={{ color: "primary.main" }} />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Security
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Two-Factor Authentication
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Add an extra layer of security to your account
+              </Typography>
+            </Box>
+            <Button variant="outlined" size="small">
+              Enable 2FA
+            </Button>
+          </Box>
+          <Divider sx={{ my: 1 }} />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Active Sessions
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Manage your logged-in devices
+              </Typography>
+            </Box>
+            <Button variant="outlined" size="small">
+              View Sessions
+            </Button>
+          </Box>
+          <Divider sx={{ my: 1 }} />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 1.5,
+            }}
+          >
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 500, color: "error.main" }}
+              >
+                Delete Account
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Permanently delete your account and all data
+              </Typography>
+            </Box>
+            <Button variant="outlined" size="small" color="error">
+              Delete
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
