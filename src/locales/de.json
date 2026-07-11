@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "mail": "E-Mail",
+    "inbox": "Posteingang",
+    "sent": "Gesendet",
+    "drafts": "Entwürfe",
+    "archive": "Archiv",
+    "spam": "Spam",
+    "trash": "Papierkorb",
+    "compose": "Verfassen",
+    "admin": "Administration",
+    "users": "Benutzer",
+    "domains": "Domänen",
+    "aliases": "Aliase",
+    "groups": "Gruppen",
+    "roles": "Rollen",
+    "quotas": "Kontingente",
+    "queue": "Warteschlange",
+    "monitoring": "Überwachung",
+    "chat": "Chat",
+    "notifications": "Benachrichtigungen",
+    "calendar": "Kalender",
+    "contacts": "Kontakte",
+    "analytics": "Analytik",
+    "settings": "Einstellungen",
+    "help": "Hilfe"
+  },
+  "dashboard": {
+    "title": "Operations Console",
+    "mailsToday": "Mails heute",
+    "queueSize": "Queue-Größe",
+    "activeUsers": "Aktive Benutzer",
+    "storageUsed": "Speicher belegt",
+    "uptime": "Laufzeit"
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "retry": "Erneut versuchen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "noResults": "Keine Ergebnisse",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "confirm": "Bestätigen",
+    "close": "Schließen"
+  },
+  "theme": {
+    "lightMode": "Heller Modus",
+    "darkMode": "Dunkler Modus",
+    "switchTo": "Zu {{mode}} wechseln"
+  }
+}

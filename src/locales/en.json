@@ -1,0 +1,59 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "mail": "Mail",
+    "inbox": "Inbox",
+    "sent": "Sent",
+    "drafts": "Drafts",
+    "archive": "Archive",
+    "spam": "Spam",
+    "trash": "Trash",
+    "compose": "Compose",
+    "admin": "Administration",
+    "users": "Users",
+    "domains": "Domains",
+    "aliases": "Aliases",
+    "groups": "Groups",
+    "roles": "Roles",
+    "quotas": "Quotas",
+    "queue": "Queue",
+    "monitoring": "Monitoring",
+    "chat": "Chat",
+    "notifications": "Notifications",
+    "calendar": "Calendar",
+    "contacts": "Contacts",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "help": "Help"
+  },
+  "dashboard": {
+    "title": "Operations Console",
+    "mailsToday": "Mails Today",
+    "queueSize": "Queue Size",
+    "activeUsers": "Active Users",
+    "storageUsed": "Storage Used",
+    "uptime": "Uptime"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "noResults": "No results",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "theme": {
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "switchTo": "Switch to {{mode}}"
+  }
+}
