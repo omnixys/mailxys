@@ -5,7 +5,7 @@ export type Contact = {
   email: string;
   phone?: string;
   organization?: string;
-  notes?: string;
+  notes?: string | null;
   createdAt: string;
   updatedAt: string;
 };
