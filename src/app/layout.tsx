@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+import { AuthProviders } from "@/auth/AuthProviders";
 import ThemeRegistry from "@/lib/mui/ThemeRegistry";
 import { ThemeModeProvider } from "@/providers/ThemeModeProvider";
 
@@ -35,7 +36,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeRegistry>
-          <ThemeModeProvider>{children}</ThemeModeProvider>
+          <ThemeModeProvider>
+            <AuthProviders>{children}</AuthProviders>
+          </ThemeModeProvider>
         </ThemeRegistry>
       </body>
     </html>

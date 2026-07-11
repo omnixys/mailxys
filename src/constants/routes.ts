@@ -1,0 +1,36 @@
+export const ROUTES = {
+  HOME: "/",
+  LOGIN: "/login",
+  DASHBOARD: "/dashboard",
+  MAIL: {
+    BASE: "/mail",
+    INBOX: "/mail/inbox",
+    SENT: "/mail/sent",
+    DRAFTS: "/mail/drafts",
+    ARCHIVE: "/mail/archive",
+    SPAM: "/mail/spam",
+    TRASH: "/mail/trash",
+    COMPOSE: "/mail/compose",
+    THREAD: "/mail/[threadId]",
+  },
+  ADMIN: {
+    BASE: "/admin",
+    USERS: "/admin/users",
+    DOMAINS: "/admin/domains",
+    ALIASES: "/admin/aliases",
+    GROUPS: "/admin/groups",
+    ROLES: "/admin/roles",
+    QUOTAS: "/admin/quotas",
+    QUEUE: "/admin/queue",
+    MONITORING: "/admin/monitoring",
+  },
+  CHAT: "/chat",
+  NOTIFICATIONS: "/notifications",
+  CALENDAR: "/calendar",
+  CONTACTS: "/contacts",
+  ANALYTICS: "/analytics",
+  SETTINGS: "/settings",
+  HELP: "/help",
+} as const;
+
+export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
