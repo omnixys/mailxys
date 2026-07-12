@@ -1,0 +1,10 @@
+query MeAuth {
+  meAuth {
+    id
+    username
+    firstName
+    lastName
+    email
+    role
+  }
+}

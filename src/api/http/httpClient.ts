@@ -19,12 +19,6 @@ function createHttpClient(): AxiosInstance {
 
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      if (typeof window !== "undefined") {
-        const token = localStorage.getItem("omnixys.auth.token");
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-      }
       return config;
     },
     (error) => Promise.reject(error),
@@ -35,7 +29,6 @@ function createHttpClient(): AxiosInstance {
     (error) => {
       if (error.response?.status === 401) {
         if (typeof window !== "undefined") {
-          localStorage.removeItem("omnixys.auth.token");
           window.location.href = "/login";
         }
       }

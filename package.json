@@ -7,13 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "codegen": "graphql-codegen",
+    "codegen:watch": "graphql-codegen --watch"
   },
   "dependencies": {
+    "@apollo/client": "^4.2.6",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/inter": "^5.2.8",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@hookform/resolvers": "^5.4.0",
     "@mui/icons-material": "^9.2.0",
     "@mui/lab": "9.0.0-beta.6",
@@ -24,6 +28,7 @@
     "axios": "^1.18.1",
     "date-fns": "^4.4.0",
     "framer-motion": "^12.42.2",
+    "graphql-ws": "^6.1.0",
     "next": "16.2.10",
     "next-intl": "^4.13.2",
     "notistack": "^3.0.2",
@@ -37,11 +42,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@graphql-codegen/cli": "^7.2.0",
+    "@graphql-codegen/client-preset": "^6.1.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.185.1",
     "babel-plugin-react-compiler": "1.0.0",
+    "graphql": "^17.0.2",
     "typescript": "^5"
   }
 }

@@ -9,7 +9,6 @@ function isLocale(value: string | undefined): value is Locale {
   return SUPPORTED_LOCALES.includes(value as Locale);
 }
 
-
 function detectLocale(header: string | null): Locale {
   if (!header) {
     return DEFAULT_LOCALE;

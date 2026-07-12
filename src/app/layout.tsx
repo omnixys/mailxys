@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { AuthProviders } from "@/auth/AuthProviders";
 import ThemeRegistry from "@/lib/mui/ThemeRegistry";
+import { ApolloRootProvider } from "@/providers/ApolloProvider";
 import { ThemeModeProvider } from "@/providers/ThemeModeProvider";
 
 export const metadata: Metadata = {
@@ -43,7 +44,9 @@ export default async function RootLayout({
         <ThemeRegistry>
           <ThemeModeProvider>
             <NextIntlClientProvider messages={messages}>
-              <AuthProviders>{children}</AuthProviders>
+              <ApolloRootProvider>
+                <AuthProviders>{children}</AuthProviders>
+              </ApolloRootProvider>
             </NextIntlClientProvider>
           </ThemeModeProvider>
         </ThemeRegistry>

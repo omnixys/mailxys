@@ -1,0 +1,10 @@
+mutation Refresh {
+  refresh {
+    accessToken
+    expiresIn
+    refreshToken
+    refreshExpiresIn
+    idToken
+    scope
+  }
+}

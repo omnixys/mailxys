@@ -30,5 +30,18 @@
   "protectedBy": "Geschützt durch Keycloak Identity Provider",
   "omnixysMail": "Omnixys Mail",
   "enterpriseWebmail": "Enterprise Webmail powered by Stalwart",
-  "footer": "Omnixys Mail — Betrieben von Stalwart Mail Server v0.16.12"
+  "footer": "Omnixys Mail — Betrieben von Stalwart Mail Server v0.16.12",
+
+  "login.title": "Bei Omnixys Mail anmelden",
+  "login.subtitle": "Zugang zu Ihrem Enterprise Webmail",
+  "login.username": "Benutzername oder E-Mail",
+  "login.password": "Passwort",
+  "login.submit": "Anmelden",
+  "login.errors.general": "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.",
+  "login.errors.network": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
+  "login.forgotPassword": "Passwort vergessen?",
+  "login.noAccount": "Noch kein Konto?",
+  "login.requestAccess": "Zugang anfordern",
+  "login.usernameRequired": "Benutzername ist erforderlich",
+  "login.passwordRequired": "Passwort ist erforderlich"
 }

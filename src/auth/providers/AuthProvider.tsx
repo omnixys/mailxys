@@ -1,106 +1,110 @@
 "use client";
 
+import { useApolloClient, useQuery } from "@apollo/client/react";
+import type React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+  MeAuthDocument,
+  type MeAuthQuery,
+  type MeAuthQueryVariables,
+} from "@/generated/graphql";
+import { getCookie } from "@/lib/apollo/cookie.utils";
+import { AuthEventsBus, AuthManager } from "@/lib/auth/AuthManager";
+import { mapRoleToPermissions } from "../rbac/roleMapping";
 import type { User } from "../types/auth";
 
 interface AuthContextValue {
-  isAuthenticated: boolean;
   user: User | null;
-  token: string | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
-  login: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue>({
-  isAuthenticated: false,
-  user: null,
-  token: null,
-  isLoading: true,
-  login: () => {},
-  logout: () => {},
-});
-
-// Mock user for development
-const MOCK_USER: User = {
-  id: "usr_001",
-  email: "admin@omnixys.com",
-  name: "Admin User",
-  roles: ["ADMIN"],
-  permissions: [
-    "mail.read",
-    "mail.write",
-    "mail.delete",
-    "mail.send",
-    "admin.users.read",
-    "admin.users.write",
-    "admin.domains.read",
-    "admin.domains.write",
-    "admin.queue.read",
-    "admin.monitoring",
-    "admin.roles",
-    "admin.quotas",
-    "admin.dkim",
-    "admin.spam",
-    "admin.network",
-    "admin.storage",
-    "system.settings",
-    "system.analytics",
-  ],
-};
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const client = useApolloClient();
+  const hasSession = !!getCookie("access_expires_at");
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { data, loading, refetch } = useQuery<
+    MeAuthQuery,
+    MeAuthQueryVariables
+  >(MeAuthDocument, {
+    skip: !hasSession,
+    fetchPolicy: "cache-first",
+    nextFetchPolicy: "cache-first",
+    context: { fetchOptions: { credentials: "include" } },
+  });
 
   useEffect(() => {
-    // Simulate auth check
-    const storedToken = localStorage.getItem("omnixys.auth.token");
-    if (storedToken) {
-      setToken(storedToken);
-      setUser(MOCK_USER);
+    AuthManager.init(client);
+  }, [client]);
+
+  useEffect(() => {
+    if (!data?.meAuth) {
+      if (!loading && hasSession) {
+        setUser(null);
+      }
+      return;
     }
-    setIsLoading(false);
-  }, []);
 
-  const login = useCallback(() => {
-    // TODO: Integrate with Keycloak
-    const mockToken = "mock-jwt-token";
-    localStorage.setItem("omnixys.auth.token", mockToken);
-    setToken(mockToken);
-    setUser(MOCK_USER);
-  }, []);
+    const me = data.meAuth;
+    const roles = me.role ? [me.role] : [];
+    const permissions = mapRoleToPermissions(roles);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("omnixys.auth.token");
-    setToken(null);
+    setUser({
+      id: me.id,
+      email: me.email,
+      name: `${me.firstName} ${me.lastName}`.trim() || me.username,
+      roles,
+      permissions,
+    });
+  }, [data, loading, hasSession]);
+
+  useEffect(() => {
+    const handleLogin = () => {
+      void refetch();
+    };
+
+    const handleLogout = () => {
+      setUser(null);
+    };
+
+    const handleRefresh = () => {
+      void refetch();
+    };
+
+    AuthEventsBus.on("auth:login", handleLogin);
+    AuthEventsBus.on("auth:logout", handleLogout);
+    AuthEventsBus.on("session:refreshed", handleRefresh);
+
+    return () => {
+      AuthEventsBus.off("auth:login", handleLogin);
+      AuthEventsBus.off("auth:logout", handleLogout);
+      AuthEventsBus.off("session:refreshed", handleRefresh);
+    };
+  }, [refetch]);
+
+  const logout = async (): Promise<void> => {
+    await AuthManager.logout();
     setUser(null);
+    await client.clearStore();
     window.location.href = "/login";
-  }, []);
+  };
 
-  const value = useMemo(
-    () => ({
-      isAuthenticated: !!user && !!token,
-      user,
-      token,
-      isLoading,
-      login,
-      logout,
-    }),
-    [user, token, isLoading, login, logout],
-  );
+  const value: AuthContextValue = {
+    user,
+    isAuthenticated: !!user,
+    isLoading: loading && hasSession,
+    logout,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

@@ -10,11 +10,7 @@ export interface User {
 export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
-  token: string | null;
   isLoading: boolean;
-  login: () => void;
-  logout: () => void;
-  refreshToken: () => Promise<void>;
 }
 
 export interface Session {
