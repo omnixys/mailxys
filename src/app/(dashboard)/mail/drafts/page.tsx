@@ -1,16 +1,7 @@
 "use client";
 
-import { DraftsRounded } from "@mui/icons-material";
-import { useTypedTranslations } from "@/i18n/useTypedTranslations";
-import PlaceholderPage from "../PlaceholderPage";
+import { MailPage } from "../inbox/page";
 
 export default function DraftsPage() {
-  const t = useTypedTranslations("mail");
-  return (
-    <PlaceholderPage
-      title={t("draftMessages")}
-      description={t("draftsDesc")}
-      icon={<DraftsRounded sx={{ fontSize: 32 }} />}
-    />
-  );
+  return <MailPage initialRole="drafts" />;
 }

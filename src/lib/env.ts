@@ -18,4 +18,8 @@ export const env = {
     "NEXT_PUBLIC_APP_URL",
     "http://localhost:3000",
   ),
+  NEXT_PUBLIC_AUTH_API_BASE_URL: getClientEnv(
+    "NEXT_PUBLIC_AUTH_API_BASE_URL",
+    "http://localhost:8000",
+  ),
 };

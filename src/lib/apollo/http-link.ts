@@ -1,5 +1,6 @@
 import { ApolloLink, HttpLink, Observable } from "@apollo/client";
 import { ErrorLink } from "@apollo/client/link/error";
+import { getAuthContext } from "@/lib/apollo/auth-context";
 import { env } from "@/lib/env";
 import { getAccessTokenClient } from "./cookie.utils";
 
@@ -7,6 +8,10 @@ function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
   if (error instanceof Error && error.name === "AbortError") return true;
   return false;
+}
+
+function generateUUID(): string {
+  return crypto.randomUUID();
 }
 
 function createErrorLink(): ErrorLink {
@@ -22,13 +27,26 @@ function createErrorLink(): ErrorLink {
 function createAuthLink(): ApolloLink {
   return new ApolloLink((operation, forward) => {
     const token = getAccessTokenClient();
-    const prevHeaders = operation.getContext().headers || {};
+    const auth = getAuthContext();
+    const prevContext = operation.getContext();
+
+    const requestId = generateUUID();
+    const headers = {
+      ...(prevContext.headers || {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      "x-tenant-id": auth.tenantId,
+      ...(auth.actorId ? { "x-actor-id": auth.actorId } : {}),
+      "x-request-id": requestId,
+      "x-correlation-id": requestId,
+      "x-device": "web",
+      "x-platform": "omnimail",
+      "x-client-version": "1.0.0",
+    };
 
     operation.setContext({
-      headers: {
-        ...prevHeaders,
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      ...prevContext,
+      headers,
+      omnixys: { requestId, correlationId: requestId },
     });
 
     return forward(operation);
@@ -39,12 +57,19 @@ function createLoggingLink(): ApolloLink {
   return new ApolloLink((operation, forward) => {
     const start = Date.now();
 
+    console.log("[HTTP] →", {
+      operation: operation.operationName,
+      requestId: operation.getContext().omnixys?.requestId,
+      variables: operation.variables,
+    });
+
     return new Observable((observer) => {
       const sub = forward(operation).subscribe({
         next: (result) => {
           console.log("[HTTP] ←", {
             operation: operation.operationName,
             durationMs: Date.now() - start,
+            requestId: operation.getContext().omnixys?.requestId,
           });
           observer.next(result);
         },
@@ -52,6 +77,7 @@ function createLoggingLink(): ApolloLink {
           console.error("[HTTP ERROR]", {
             operation: operation.operationName,
             durationMs: Date.now() - start,
+            requestId: operation.getContext().omnixys?.requestId,
           });
           observer.error(error);
         },

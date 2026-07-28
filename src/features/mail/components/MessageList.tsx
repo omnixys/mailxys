@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { useMemo } from "react";
+import { jmapClient } from "@/api/jmap/jmapClient";
 import type { JmapEmail } from "@/features/mail/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
@@ -48,7 +49,24 @@ export function MessageList() {
             key={email.id}
             email={email}
             isSelected={selectedEmailId === email.id}
-            onSelect={selectEmail}
+            onSelect={(id) => {
+              selectEmail(id);
+              const selected = emails.find((item) => item.id === id);
+              if (selected && !selected.keywords.$seen) {
+                void jmapClient.markRead(id).then(() => {
+                  useMailStore.getState().setEmails(
+                    useMailStore.getState().emails.map((item) =>
+                      item.id === id
+                        ? {
+                            ...item,
+                            keywords: { ...item.keywords, $seen: true },
+                          }
+                        : item,
+                    ),
+                  );
+                });
+              }
+            }}
             theme={theme}
           />
         ))

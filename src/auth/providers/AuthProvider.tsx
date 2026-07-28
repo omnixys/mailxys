@@ -8,8 +8,9 @@ import {
   type MeAuthQuery,
   type MeAuthQueryVariables,
 } from "@/generated/graphql";
-import { getCookie } from "@/lib/apollo/cookie.utils";
+import { setCurrentUser } from "@/lib/apollo/auth-context";
 import { AuthEventsBus, AuthManager } from "@/lib/auth/AuthManager";
+import { StalwartSessionManager } from "@/lib/mail/StalwartSessionManager";
 import { mapRoleToPermissions } from "../rbac/roleMapping";
 import type { User } from "../types/auth";
 
@@ -24,17 +25,14 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const client = useApolloClient();
-  const hasSession = !!getCookie("access_expires_at");
   const [user, setUser] = useState<User | null>(null);
+  const [authUser, setAuthUser] = useState<MeAuthQuery["meAuth"] | null>(null);
 
   const { data, loading, refetch } = useQuery<
     MeAuthQuery,
     MeAuthQueryVariables
   >(MeAuthDocument, {
-    skip: !hasSession,
-    fetchPolicy: "cache-first",
-    nextFetchPolicy: "cache-first",
-    context: { fetchOptions: { credentials: "include" } },
+    fetchPolicy: "cache-and-network",
   });
 
   useEffect(() => {
@@ -43,8 +41,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!data?.meAuth) {
-      if (!loading && hasSession) {
+      if (!loading) {
         setUser(null);
+        setAuthUser(null);
+        setCurrentUser(null);
       }
       return;
     }
@@ -53,6 +53,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const roles = me.role ? [me.role] : [];
     const permissions = mapRoleToPermissions(roles);
 
+    setAuthUser(me);
+    setCurrentUser(me);
+
     setUser({
       id: me.id,
       email: me.email,
@@ -60,19 +63,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       roles,
       permissions,
     });
-  }, [data, loading, hasSession]);
+  }, [data, loading]);
 
   useEffect(() => {
-    const handleLogin = () => {
-      void refetch();
+    const handleLogin = async () => {
+      await refetch();
     };
 
     const handleLogout = () => {
       setUser(null);
+      setAuthUser(null);
+      setCurrentUser(null);
     };
 
-    const handleRefresh = () => {
-      void refetch();
+    const handleRefresh = async () => {
+      await refetch();
     };
 
     AuthEventsBus.on("auth:login", handleLogin);
@@ -88,15 +93,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async (): Promise<void> => {
     await AuthManager.logout();
+    await StalwartSessionManager.logout();
     setUser(null);
+    setAuthUser(null);
+    setCurrentUser(null);
     await client.clearStore();
     window.location.href = "/login";
   };
 
   const value: AuthContextValue = {
     user,
-    isAuthenticated: !!user,
-    isLoading: loading && hasSession,
+    isAuthenticated: !!authUser,
+    isLoading: loading,
     logout,
   };
 

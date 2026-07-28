@@ -8,7 +8,9 @@ import {
   SendRounded,
 } from "@mui/icons-material";
 import {
+  Alert,
   Box,
+  CircularProgress,
   Divider,
   Drawer,
   IconButton,
@@ -16,7 +18,8 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { jmapClient } from "@/api/jmap/jmapClient";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
 
@@ -28,11 +31,40 @@ export function ComposeDrawer() {
   const [to, setTo] = useState(composeData?.to ?? "");
   const [subject, setSubject] = useState(composeData?.subject ?? "");
   const [body, setBody] = useState(composeData?.body ?? "");
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
-  const handleSend = () => {
-    // TODO: Implement actual send via JMAP EmailSubmission
-    console.log("Send:", { to, subject, body });
-    closeCompose();
+  useEffect(() => {
+    if (!composeOpen) return;
+    setTo(composeData?.to ?? "");
+    setSubject(composeData?.subject ?? "");
+    setBody(composeData?.body ?? "");
+    setSendError(null);
+  }, [composeData, composeOpen]);
+
+  const handleSend = async () => {
+    if (sending || !to.trim() || !body.trim()) return;
+    setSending(true);
+    setSendError(null);
+    try {
+      await jmapClient.send({
+        to,
+        subject,
+        body,
+        ...(composeData?.inReplyTo ? { inReplyTo: composeData.inReplyTo } : {}),
+        ...(composeData?.references
+          ? { references: composeData.references }
+          : {}),
+      });
+      closeCompose();
+      useMailStore.getState().requestRefresh();
+    } catch (error) {
+      setSendError(
+        error instanceof Error ? error.message : "Email could not be sent",
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -149,6 +181,11 @@ export function ComposeDrawer() {
       />
 
       {/* Footer */}
+      {sendError && (
+        <Alert severity="error" sx={{ mx: 2.5, mb: 1 }}>
+          {sendError}
+        </Alert>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -164,6 +201,7 @@ export function ComposeDrawer() {
         </Typography>
         <IconButton
           onClick={handleSend}
+          disabled={sending || !to.trim() || !body.trim()}
           sx={{
             bgcolor: theme.palette.primary.main,
             color: "#fff",
@@ -172,7 +210,11 @@ export function ComposeDrawer() {
             "&:hover": { bgcolor: theme.palette.primary.dark },
           }}
         >
-          <SendRounded sx={{ fontSize: "1.125rem", mr: 0.5 }} />
+          {sending ? (
+            <CircularProgress size={18} color="inherit" sx={{ mr: 0.5 }} />
+          ) : (
+            <SendRounded sx={{ fontSize: "1.125rem", mr: 0.5 }} />
+          )}
           <Typography variant="body2" sx={{ fontWeight: 600, color: "#fff" }}>
             {t("send")}
           </Typography>

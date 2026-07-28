@@ -2,52 +2,63 @@
 
 import { Box, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/auth/providers/AuthProvider";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
-import { AuthManager } from "@/lib/auth/AuthManager";
+import { AuthEventsBus } from "@/lib/auth/AuthManager";
 import BrandingHeader from "./BrandingHeader";
 import PasswordField from "./PasswordField";
 import SubmitButton from "./SubmitButton";
 import UsernameField from "./UsernameField";
 
 export default function LoginForm() {
-  const router = useRouter();
   const t = useTypedTranslations("marketing");
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{
-    username?: string;
-    password?: string;
-  }>({});
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    if (loading) return;
-
-    const newFieldErrors: { username?: string; password?: string } = {};
-    if (!username.trim()) newFieldErrors.username = t("login.usernameRequired");
-    if (!password) newFieldErrors.password = t("login.passwordRequired");
-
-    if (Object.keys(newFieldErrors).length > 0) {
-      setFieldErrors(newFieldErrors);
-      return;
-    }
-
-    setFieldErrors({});
-    setError(null);
     setLoading(true);
+    setError(null);
 
     try {
-      await AuthManager.login({ username: username.trim(), password });
-      router.push("/dashboard");
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = (await res.json()) as {
+        ok: boolean;
+        platformAuthenticated: boolean;
+        mailAuthenticated: boolean;
+        warning?: string;
+        error?: string;
+      };
+
+      if (!res.ok || !data.platformAuthenticated) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Signal AuthProvider to refetch MeAuth
+      AuthEventsBus.emit("auth:login");
+
+      // Redirect to dashboard — AuthGuard will handle loading state
+      router.replace("/dashboard");
     } catch (err) {
-      console.error("Login failed:", err);
-      setError(t("login.errors.general"));
-    } finally {
+      setError(err instanceof Error ? err.message : "Login failed");
       setLoading(false);
     }
   }
@@ -60,13 +71,13 @@ export default function LoginForm() {
         <UsernameField
           value={username}
           onChange={setUsername}
-          error={fieldErrors.username}
+          error={undefined}
           disabled={loading}
         />
         <PasswordField
           value={password}
           onChange={setPassword}
-          error={fieldErrors.password}
+          error={undefined}
           disabled={loading}
         />
         <SubmitButton loading={loading} disabled={loading} />

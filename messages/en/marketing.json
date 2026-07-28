@@ -61,16 +61,22 @@
   "hipaa": "HIPAA",
   "footer": "Omnixys Mail — Powered by Stalwart Mail Server v0.16.12",
 
-  "login.title": "Sign in to Omnixys Mail",
-  "login.subtitle": "Access your enterprise webmail",
-  "login.username": "Username or email",
-  "login.password": "Password",
-  "login.submit": "Sign In",
-  "login.errors.general": "Login failed. Please check your credentials.",
-  "login.errors.network": "Network error. Please try again.",
-  "login.forgotPassword": "Forgot password?",
-  "login.noAccount": "Don't have an account?",
-  "login.requestAccess": "Request access",
-  "login.usernameRequired": "Username is required",
-  "login.passwordRequired": "Password is required"
+  "login": {
+    "title": "Sign in to Omnixys Mail",
+    "subtitle": "Access your enterprise webmail",
+    "username": "Username or email",
+    "password": "Password",
+    "submit": "Sign In",
+    "errors": {
+      "general": "Login failed. Please check your credentials.",
+      "network": "Network error. Please try again."
+    },
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "requestAccess": "Request access",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "or": "or",
+    "keycloak": "Continue with Keycloak"
+  }
 }

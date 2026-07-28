@@ -6,6 +6,8 @@ interface ComposeData {
   to?: string;
   subject?: string;
   body?: string;
+  inReplyTo?: string;
+  references?: string[];
 }
 
 interface MailState {
@@ -16,6 +18,9 @@ interface MailState {
   searchQuery: string;
   composeOpen: boolean;
   composeData: ComposeData | null;
+  loading: boolean;
+  error: string | null;
+  refreshVersion: number;
 
   setMailboxes: (mailboxes: JmapMailbox[]) => void;
   setEmails: (emails: JmapEmail[]) => void;
@@ -24,6 +29,10 @@ interface MailState {
   setSearchQuery: (query: string) => void;
   openCompose: (data?: ComposeData) => void;
   closeCompose: () => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  resetMail: () => void;
+  requestRefresh: () => void;
 }
 
 export const useMailStore = create<MailState>((set) => ({
@@ -34,6 +43,9 @@ export const useMailStore = create<MailState>((set) => ({
   searchQuery: "",
   composeOpen: false,
   composeData: null,
+  loading: false,
+  error: null,
+  refreshVersion: 0,
 
   setMailboxes: (mailboxes) => set({ mailboxes }),
   setEmails: (emails) => set({ emails }),
@@ -42,4 +54,16 @@ export const useMailStore = create<MailState>((set) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
   openCompose: (data) => set({ composeOpen: true, composeData: data ?? null }),
   closeCompose: () => set({ composeOpen: false, composeData: null }),
+  setLoading: (loading) => set({ loading }),
+  setError: (error) => set({ error }),
+  resetMail: () =>
+    set({
+      mailboxes: [],
+      emails: [],
+      selectedMailboxId: null,
+      selectedEmailId: null,
+      error: null,
+    }),
+  requestRefresh: () =>
+    set((state) => ({ refreshVersion: state.refreshVersion + 1 })),
 }));

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ApolloClient } from "@apollo/client";
+import { AppError, ErrorCode } from "@/errors/app-error";
 import {
   LoginDocument,
   type LoginMutation,
@@ -43,9 +44,9 @@ class AuthEventEmitter {
   }
 
   emit(name: AuthEvent, payload?: unknown) {
-    for (const fn of this.listeners.get(name) ?? []) {
+    this.listeners.get(name)?.forEach((fn) => {
       fn(payload);
-    }
+    });
   }
 }
 
@@ -101,7 +102,11 @@ class AuthManagerClass {
     });
 
     if (!res?.data?.credentialsLogin) {
-      throw new Error("Login failed: incomplete response from server");
+      throw new AppError({
+        code: ErrorCode.AUTHENTICATION_FAILED,
+        message: "Login response was incomplete",
+        operationName: "CredentialsLogin",
+      });
     }
 
     AuthEventsBus.emit("auth:login");
@@ -120,7 +125,11 @@ class AuthManagerClass {
     });
 
     if (!res?.data?.refresh) {
-      throw new Error("Refresh failed: incomplete response from server");
+      throw new AppError({
+        code: ErrorCode.INTERNAL_SERVER_ERROR,
+        message: "Refresh response was incomplete",
+        operationName: "Refresh",
+      });
     }
 
     AuthEventsBus.emit("session:refreshed");
@@ -129,15 +138,11 @@ class AuthManagerClass {
   async logout(): Promise<void> {
     this.assertApollo();
 
-    try {
-      await this.apollo?.mutate<LogoutMutation, LogoutMutationVariables>({
-        mutation: LogoutDocument,
-        fetchPolicy: "no-cache",
-        context: { fetchOptions: { credentials: "include" } },
-      });
-    } catch {
-      // Logout should succeed even if the server call fails
-    }
+    await this.apollo?.mutate<LogoutMutation, LogoutMutationVariables>({
+      mutation: LogoutDocument,
+      fetchPolicy: "no-cache",
+      context: { fetchOptions: { credentials: "include" } },
+    });
 
     if (this.intervalId) {
       clearInterval(this.intervalId);
@@ -149,7 +154,10 @@ class AuthManagerClass {
 
   private assertApollo() {
     if (!this.apollo) {
-      throw new Error("AuthManager not initialized — call init(apollo) first");
+      throw new AppError({
+        code: ErrorCode.INTERNAL_SERVER_ERROR,
+        message: "Authentication client is not initialized",
+      });
     }
   }
 }

@@ -112,6 +112,8 @@ export function MessageDetail() {
               mode: "reply",
               to: senderEmail,
               subject: `Re: ${email.subject}`,
+              inReplyTo: email.messageId,
+              references: [...(email.references ?? []), email.messageId],
             })
           }
           title={t("reply")}
@@ -125,6 +127,8 @@ export function MessageDetail() {
               mode: "replyAll",
               to: senderEmail,
               subject: `Re: ${email.subject}`,
+              inReplyTo: email.messageId,
+              references: [...(email.references ?? []), email.messageId],
             })
           }
           title={t("replyAll")}

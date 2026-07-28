@@ -1,4 +1,4 @@
-import { gatewayClient } from "../gateway/gatewayClient";
+import type { JmapEmail, JmapMailbox } from "@/features/mail/types";
 
 export interface JmapApiRequest {
   using: string[];
@@ -10,19 +10,77 @@ export interface JmapApiResponse {
   createdIds?: Record<string, string>;
 }
 
-class JmapClient {
-  async call(requests: JmapApiRequest): Promise<JmapApiResponse> {
-    const response = await gatewayClient.post<JmapApiResponse>(
-      "/jmap",
-      requests,
+export class MailClientError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+async function mailFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`/api/mail${path}`, {
+    credentials: "include",
+    headers: { "content-type": "application/json", ...init?.headers },
+    ...init,
+  });
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new MailClientError(
+      response.status,
+      payload.error ?? `Mail request failed (${response.status})`,
     );
-    return response.data;
+  }
+  if (response.status === 204) return undefined as T;
+  return response.json() as Promise<T>;
+}
+
+class JmapClient {
+  getMailboxes(): Promise<JmapMailbox[]> {
+    return mailFetch("/mailboxes");
   }
 
-  async getSession() {
-    const response =
-      await gatewayClient.get<Record<string, unknown>>("/jmap/session");
-    return response.data;
+  async getMessages(mailboxId: string): Promise<JmapEmail[]> {
+    const messages = await mailFetch<
+      Array<JmapEmail & { sentAt?: string; messageId?: string | string[] }>
+    >(`/messages?mailboxId=${encodeURIComponent(mailboxId)}`);
+    return messages.map((message) => ({
+      ...message,
+      date: message.sentAt ?? message.receivedAt,
+      messageId: Array.isArray(message.messageId)
+        ? (message.messageId[0] ?? "")
+        : (message.messageId ?? ""),
+      from: message.from ?? [],
+      to: message.to ?? [],
+      textBody: message.textBody ?? [],
+      htmlBody: message.htmlBody ?? [],
+      attachments: message.attachments ?? [],
+      bodyValues: message.bodyValues ?? {},
+      headers: message.headers ?? [],
+    }));
+  }
+
+  markRead(messageId: string, read = true): Promise<void> {
+    return mailFetch(`/messages/${encodeURIComponent(messageId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ read }),
+    });
+  }
+
+  send(input: {
+    to: string;
+    subject: string;
+    body: string;
+    inReplyTo?: string;
+    references?: string[];
+  }) {
+    return mailFetch<Record<string, unknown>>("/send", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
   }
 }
 

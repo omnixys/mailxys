@@ -1,16 +1,7 @@
 "use client";
 
-import { ArchiveRounded } from "@mui/icons-material";
-import { useTypedTranslations } from "@/i18n/useTypedTranslations";
-import PlaceholderPage from "../PlaceholderPage";
+import { MailPage } from "../inbox/page";
 
 export default function ArchivePage() {
-  const t = useTypedTranslations("mail");
-  return (
-    <PlaceholderPage
-      title={t("archive")}
-      description={t("archiveDesc")}
-      icon={<ArchiveRounded sx={{ fontSize: 32 }} />}
-    />
-  );
+  return <MailPage initialRole="archive" />;
 }

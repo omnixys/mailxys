@@ -19,7 +19,6 @@ function detectLocale(header: string | null): Locale {
     .map((entry) => (entry.split(";").at(0) ?? "").trim().toLowerCase());
 
   for (const candidate of accepted) {
-    // 1. Exakter Match
     const exact = SUPPORTED_LOCALES.find(
       (locale) => locale.toLowerCase() === candidate,
     );
@@ -28,7 +27,6 @@ function detectLocale(header: string | null): Locale {
       return exact;
     }
 
-    // 2. Sprache matchen (de, en, fr, pt, zh, ...)
     const candidateLanguage = candidate.split("-").at(0);
 
     if (!candidateLanguage) {
@@ -60,8 +58,6 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
   const cookieLocale = req.cookies.get("locale")?.value;
-
-  // console.log({cookieLocale});
 
   if (!isLocale(cookieLocale)) {
     const header = req.headers.get("accept-language");

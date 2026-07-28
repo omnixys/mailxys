@@ -27,6 +27,7 @@ export function MailToolbar() {
     openCompose,
     selectedMailboxId,
     mailboxes,
+    requestRefresh,
   } = useMailStore();
   const mailbox = mailboxes.find((m) => m.id === selectedMailboxId);
 
@@ -86,7 +87,7 @@ export function MailToolbar() {
       <IconButton size="small" title={t("filter")}>
         <FilterListRounded sx={{ fontSize: "1.25rem" }} />
       </IconButton>
-      <IconButton size="small" title={t("refresh")}>
+      <IconButton size="small" title={t("refresh")} onClick={requestRefresh}>
         <RefreshRounded sx={{ fontSize: "1.25rem" }} />
       </IconButton>
       <IconButton
