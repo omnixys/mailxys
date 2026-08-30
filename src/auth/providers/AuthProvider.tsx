@@ -10,7 +10,6 @@ import {
 } from "@/generated/graphql";
 import { setCurrentUser } from "@/lib/apollo/auth-context";
 import { AuthEventsBus, AuthManager } from "@/lib/auth/AuthManager";
-import { StalwartSessionManager } from "@/lib/mail/StalwartSessionManager";
 import { mapRoleToPermissions } from "../rbac/roleMapping";
 import type { User } from "../types/auth";
 
@@ -93,7 +92,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async (): Promise<void> => {
     await AuthManager.logout();
-    await StalwartSessionManager.logout();
     setUser(null);
     setAuthUser(null);
     setCurrentUser(null);

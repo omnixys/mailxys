@@ -23,7 +23,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace("/dashboard");
+      router.replace("/mail/inbox");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -43,8 +43,6 @@ export default function LoginForm() {
       const data = (await res.json()) as {
         ok: boolean;
         platformAuthenticated: boolean;
-        mailAuthenticated: boolean;
-        warning?: string;
         error?: string;
       };
 
@@ -56,7 +54,7 @@ export default function LoginForm() {
       AuthEventsBus.emit("auth:login");
 
       // Redirect to dashboard — AuthGuard will handle loading state
-      router.replace("/dashboard");
+      router.replace("/mail/inbox");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
       setLoading(false);

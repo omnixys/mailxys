@@ -125,101 +125,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  // --- Step 2: Stalwart Token Exchange ---
-  console.log("[Login] Stalwart Token Exchange");
-  let mailAuthenticated = false;
-
-  try {
-    const stalwartBaseUrl = required("STALWART_BASE_URL");
-
-    // Step 2a: credentials → authorization code
-    const authRes = await fetch(`${stalwartBaseUrl}/api/auth`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "authCode",
-        accountName: username,
-        accountSecret: password,
-        clientId: "omnimail",
-        redirectUri: "http://localhost:3000/callback",
-      }),
-    });
-
-    if (!authRes.ok) {
-      console.error("[Login] Stalwart auth failed", { status: authRes.status });
-    } else {
-      const authData = (await authRes.json()) as {
-        type: string;
-        client_code?: string;
-      };
-
-      if (authData.type !== "authenticated" || !authData.client_code) {
-        console.error("[Login] Stalwart auth rejected", {
-          type: authData.type,
-        });
-      } else {
-        // Step 2b: authorization code → access token
-        const tokenRes = await fetch(`${stalwartBaseUrl}/auth/token`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            grant_type: "authorization_code",
-            client_id: "omnimail",
-            code: authData.client_code,
-            redirect_uri: "http://localhost:3000/callback",
-          }),
-        });
-
-        if (!tokenRes.ok) {
-          console.error("[Login] Stalwart token exchange failed", {
-            status: tokenRes.status,
-          });
-        } else {
-          const tokenData = (await tokenRes.json()) as {
-            access_token: string;
-            refresh_token: string;
-            expires_in: number;
-          };
-
-          const expiresAt = Date.now() + tokenData.expires_in * 1000;
-
-          response.headers.append(
-            "Set-Cookie",
-            `stalwart_access_token=${tokenData.access_token}; Max-Age=${tokenData.expires_in}; ${cookieBase}`,
-          );
-          response.headers.append(
-            "Set-Cookie",
-            `stalwart_refresh_token=${tokenData.refresh_token}; Max-Age=2592000; ${cookieBase}`,
-          );
-          response.headers.append(
-            "Set-Cookie",
-            `stalwart_expires_at=${expiresAt}; Max-Age=${tokenData.expires_in}; Path=/; SameSite=${process.env.NODE_ENV === "production" ? "none" : "lax"}; ${process.env.NODE_ENV === "production" ? "Secure; " : ""}`,
-          );
-
-          mailAuthenticated = true;
-          console.log("[Login] Stalwart Login ✓");
-        }
-      }
-    }
-  } catch (err) {
-    console.error("[Login] Stalwart exchange error", {
-      error: err instanceof Error ? err.message : "unknown",
-    });
-  }
-
-  // --- Response ---
-  const result = {
-    ok: true,
-    platformAuthenticated: true,
-    mailAuthenticated,
-    ...(mailAuthenticated ? {} : { warning: "MAIL_AUTHENTICATION_FAILED" }),
-  };
-
-  // Replace the body with structured response
-  return NextResponse.json(result, {
-    status: 200,
-    headers: response.headers,
-  });
+  return NextResponse.json(
+    { ok: true, platformAuthenticated: true },
+    {
+      status: 200,
+      headers: response.headers,
+    },
+  );
 }

@@ -20,100 +20,49 @@ export class MailApiError extends Error {
   }
 }
 
-// --- Server-side refresh lock ---
-let refreshPromise: Promise<string | null> | null = null;
-
-async function refreshStalwartToken(): Promise<string | null> {
-  if (refreshPromise) {
-    console.log("[Stalwart] Refresh already in progress, waiting...");
-    return refreshPromise;
-  }
-
-  refreshPromise = doRefresh();
-  try {
-    return await refreshPromise;
-  } finally {
-    refreshPromise = null;
-  }
-}
-
-async function doRefresh(): Promise<string | null> {
-  const store = await cookies();
-  const refreshToken = store.get("stalwart_refresh_token")?.value;
-
-  if (!refreshToken) {
-    console.error("[Stalwart] No refresh token available");
-    return null;
-  }
-
-  try {
-    const tokenUrl = `${required("STALWART_BASE_URL")}/auth/token`;
-    const res = await fetch(tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      }),
-    });
-
-    if (!res.ok) {
-      console.error("[Stalwart] Refresh failed", { status: res.status });
-      return null;
-    }
-
-    const data = (await res.json()) as {
-      access_token: string;
-      refresh_token: string;
-      expires_in: number;
-    };
-
-    const expiresAt = Date.now() + data.expires_in * 1000;
-    const isProd = process.env.NODE_ENV === "production";
-    const sameSite = isProd ? "none" : "lax";
-    const secure = isProd;
-
-    // Set new cookies via Next.js headers API
-    const cookieStore = await cookies();
-    cookieStore.set("stalwart_access_token", data.access_token, {
-      httpOnly: true,
-      secure,
-      sameSite: sameSite === "none" ? "none" : "lax",
-      path: "/",
-      maxAge: data.expires_in,
-    });
-    cookieStore.set("stalwart_refresh_token", data.refresh_token, {
-      httpOnly: true,
-      secure,
-      sameSite: sameSite === "none" ? "none" : "lax",
-      path: "/",
-      maxAge: 2592000,
-    });
-    cookieStore.set("stalwart_expires_at", String(expiresAt), {
-      httpOnly: false,
-      secure,
-      sameSite: sameSite === "none" ? "none" : "lax",
-      path: "/",
-      maxAge: data.expires_in,
-    });
-
-    console.log("[Stalwart] Token refreshed ✓");
-    return data.access_token;
-  } catch (err) {
-    console.error("[Stalwart] Refresh network error", {
-      error: err instanceof Error ? err.message : "unknown",
-    });
-    return null;
-  }
-}
-
-// --- Public API ---
-
 export async function mailAccessToken(): Promise<string> {
   const store = await cookies();
-  const token = store.get("stalwart_access_token")?.value;
-  if (!token) throw new MailApiError(401, "Authentication required");
-  return token;
+  const platformToken = store.get("access_token")?.value;
+  if (!platformToken) throw new MailApiError(401, "Authentication required");
+  try {
+    const res = await fetch(required("MAIL_TOKEN_URL"), {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${platformToken}`,
+        "x-omnimail-service-token": required("OMNIMAIL_SERVICE_TOKEN"),
+      },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      console.error("[Mail Token] Gateway rejected request", {
+        status: res.status,
+      });
+      throw new MailApiError(
+        res.status === 401 ? 401 : 502,
+        res.status === 401
+          ? "Authentication required"
+          : "Mail authentication is unavailable",
+      );
+    }
+    const data = (await res.json()) as {
+      accessToken?: string;
+      tokenType?: string;
+      expiresIn?: number;
+    };
+    if (
+      !data.accessToken ||
+      data.tokenType !== "Bearer" ||
+      typeof data.expiresIn !== "number" ||
+      data.expiresIn <= 0
+    ) {
+      throw new MailApiError(502, "Invalid mail authentication response");
+    }
+    return data.accessToken;
+  } catch (error) {
+    if (error instanceof MailApiError) throw error;
+    console.error("[Mail Token] Gateway request failed");
+    throw new MailApiError(502, "Mail authentication is unavailable");
+  }
 }
 
 async function doJmapFetch(
@@ -163,37 +112,15 @@ async function parseJmapResponse(response: Response): Promise<JmapResponse> {
   return payload;
 }
 
-/**
- * Execute a JMAP call with automatic retry on 401.
- * Handles token refresh server-side with a lock to prevent concurrent refreshes.
- */
 export async function jmapSecure(
   methodCalls: unknown[],
 ): Promise<JmapResponse> {
   const token = await mailAccessToken();
-
-  // First attempt
-  const firstResponse = await doJmapFetch(token, methodCalls);
-
-  if (firstResponse.status !== 401) {
-    return parseJmapResponse(firstResponse);
-  }
-
-  // 401 → refresh
-  console.log("[Stalwart] JMAP 401, refreshing token");
-  const newToken = await refreshStalwartToken();
-  if (!newToken) {
+  const response = await doJmapFetch(token, methodCalls);
+  if (response.status === 401) {
     throw new MailApiError(401, "Mail session expired");
   }
-
-  // Retry
-  const retryResponse = await doJmapFetch(newToken, methodCalls);
-  if (retryResponse.status === 401) {
-    console.error("[Stalwart] JMAP 401 after refresh");
-    throw new MailApiError(401, "Mail session expired");
-  }
-
-  return parseJmapResponse(retryResponse);
+  return parseJmapResponse(response);
 }
 
 export async function ensureMailAccount(accessToken: string): Promise<string> {
