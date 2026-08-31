@@ -13,6 +13,7 @@ export interface JmapBodyValue {
   value: string;
   isEncodingProblem: boolean;
   isTruncated: boolean;
+  encoding?: "base64" | "7bit" | "quoted-printable";
 }
 
 export interface JmapHeader {

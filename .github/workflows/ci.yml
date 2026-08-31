@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, kp]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.OMNIXYS_TOKEN }}
+  NODE_ENV: production
+
+  NEXT_PUBLIC_OTEL_ENDPOINT: ${{ vars.NEXT_PUBLIC_OTEL_ENDPOINT }}
+  NEXT_PUBLIC_OTEL_SERVICE_NAME: ${{ vars.NEXT_PUBLIC_OTEL_SERVICE_NAME }}
+  NEXT_PUBLIC_OTEL_SAMPLE_RATE: ${{ vars.NEXT_PUBLIC_OTEL_SAMPLE_RATE }}
+
+  NEXT_PUBLIC_BACKEND_SERVER_URL: ${{ vars.NEXT_PUBLIC_BACKEND_SERVER_URL }}
+  NEXT_PUBLIC_GRAPHQL_WS_URL: ${{ vars.NEXT_PUBLIC_GRAPHQL_WS_URL }}
+
+  NEXT_PUBLIC_FALLBACK_URL: ${{ vars.NEXT_PUBLIC_FALLBACK_URL }}
+  NEXT_PUBLIC_CHECKPOINT_BASE_PATH: ${{ vars.NEXT_PUBLIC_CHECKPOINT_BASE_PATH }}
+
+  NEXT_PUBLIC_EVENT_ID: ${{ secrets.NEXT_PUBLIC_EVENT_ID }}
+
+  NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+  NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+  NEXT_PUBLIC_NEXYS_HOME_URL: ${{ vars.NEXT_PUBLIC_NEXYS_HOME_URL }}
+  NEXT_PUBLIC_OMNIXYS_TENANT_ID: ${{ vars.NEXT_PUBLIC_OMNIXYS_TENANT_ID }}
+
+  NEXT_PUBLIC_EVENT_API: ${{ vars.NEXT_PUBLIC_EVENT_API }}
+  NEXT_PUBLIC_INVITATION_API: ${{ vars.NEXT_PUBLIC_INVITATION_API }}
+
+  # Server-only env vars (required at build time for server modules)
+  MAIL_TOKEN_URL: ${{ secrets.MAIL_TOKEN_URL }}
+  STALWART_JMAP_URL: ${{ secrets.STALWART_JMAP_URL }}
+  ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  OMNIMAIL_SERVICE_TOKEN: ${{ secrets.OMNIMAIL_SERVICE_TOKEN }}
+  OMNIXYS_TENANT_ID: ${{ secrets.OMNIXYS_TENANT_ID }}
+  ANALYTICS_CONSENT_SECRET: ${{ secrets.ANALYTICS_CONSENT_SECRET }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: "@omnixys"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm test
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm exec biome check .
+
+      - name: Build
+        run: pnpm build
