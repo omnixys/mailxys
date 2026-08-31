@@ -23,13 +23,17 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { useAuth } from "@/auth/providers/AuthProvider";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
+import { getSettingsProfile } from "./profile";
 
 export default function SettingsPage() {
   const t = useTypedTranslations("settings");
   const theme = useTheme();
   const { mode, toggleMode } = useThemeMode();
+  const { user } = useAuth();
+  const profile = getSettingsProfile(user);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emailDigest, setEmailDigest] = useState("daily");
   const [language, setLanguage] = useState("en");
@@ -57,14 +61,14 @@ export default function SettingsPage() {
                 color: "#fff",
               }}
             >
-              A
+              {profile?.initials}
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Admin User
+                {profile?.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                admin@omnixys.com
+                {profile?.email}
               </Typography>
             </Box>
           </Box>
