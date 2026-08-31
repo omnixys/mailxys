@@ -4,6 +4,7 @@ import {
   classifyMailTokenFailure,
   type MailErrorCode,
 } from "@/lib/mail/errors";
+import { env } from "@/config/env.server";
 
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
@@ -38,11 +39,12 @@ export async function mailAccessToken(requestId: string): Promise<string> {
     );
   }
   try {
+    console.log('env.OMNIMAIL_SERVICE_TOKEN: ' + env.OMNIMAIL_SERVICE_TOKEN,)
     const res = await fetch(required("MAIL_TOKEN_URL"), {
       method: "POST",
       headers: {
         authorization: `Bearer ${platformToken}`,
-        "x-omnimail-service-token": required("OMNIMAIL_SERVICE_TOKEN"),
+        "x-omnimail-service-token": env.OMNIMAIL_SERVICE_TOKEN,
         "x-request-id": requestId,
         "x-correlation-id": requestId,
       },
