@@ -70,6 +70,19 @@ class JmapClient {
     }));
   }
 
+  async getMessage(
+    messageId: string,
+    signal?: AbortSignal,
+  ): Promise<JmapEmail> {
+    const message = await mailFetch<
+      JmapEmail & { sentAt?: string; messageId?: string | string[] }
+    >(
+      `/messages/${encodeURIComponent(messageId)}`,
+      signal ? { signal } : undefined,
+    );
+    return normalizeMessage(message);
+  }
+
   markRead(messageId: string, read = true): Promise<void> {
     return mailFetch(`/messages/${encodeURIComponent(messageId)}`, {
       method: "PATCH",
@@ -89,6 +102,25 @@ class JmapClient {
       body: JSON.stringify(input),
     });
   }
+}
+
+function normalizeMessage(
+  message: JmapEmail & { sentAt?: string; messageId?: string | string[] },
+): JmapEmail {
+  return {
+    ...message,
+    date: message.sentAt ?? message.receivedAt,
+    messageId: Array.isArray(message.messageId)
+      ? (message.messageId[0] ?? "")
+      : (message.messageId ?? ""),
+    from: message.from ?? [],
+    to: message.to ?? [],
+    textBody: message.textBody ?? [],
+    htmlBody: message.htmlBody ?? [],
+    attachments: message.attachments ?? [],
+    bodyValues: message.bodyValues ?? {},
+    headers: message.headers ?? [],
+  };
 }
 
 export const jmapClient = new JmapClient();

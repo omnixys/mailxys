@@ -303,14 +303,9 @@ export async function getMessages(
             "messageId",
             "inReplyTo",
             "references",
-            "textBody",
-            "htmlBody",
-            "attachments",
-            "bodyValues",
+            "preview",
             "hasAttachment",
           ],
-          fetchAllBodyValues: true,
-          maxBodyValueBytes: 1_000_000,
         },
         "emails",
       ],
@@ -323,6 +318,84 @@ export async function getMessages(
   if (!emailResponse) return [];
   const list = emailResponse[1]?.list;
   return Array.isArray(list) ? list : [];
+}
+
+export async function getMessage(
+  accessToken: string,
+  accountId: string,
+  messageId: string,
+  requestId: string,
+) {
+  const result = await jmapSecure(
+    accessToken,
+    [
+      [
+        "Email/get",
+        {
+          accountId,
+          ids: [messageId],
+          properties: [
+            "id",
+            "blobId",
+            "threadId",
+            "mailboxIds",
+            "keywords",
+            "receivedAt",
+            "sentAt",
+            "size",
+            "subject",
+            "from",
+            "to",
+            "cc",
+            "bcc",
+            "replyTo",
+            "sender",
+            "messageId",
+            "inReplyTo",
+            "references",
+            "preview",
+            "bodyStructure",
+            "textBody",
+            "htmlBody",
+            "attachments",
+            "bodyValues",
+            "hasAttachment",
+          ],
+          bodyProperties: [
+            "partId",
+            "blobId",
+            "size",
+            "name",
+            "type",
+            "charset",
+            "disposition",
+            "cid",
+            "language",
+            "location",
+          ],
+          fetchTextBodyValues: true,
+          fetchHTMLBodyValues: true,
+          fetchAllBodyValues: true,
+          maxBodyValueBytes: 5_000_000,
+        },
+        "email",
+      ],
+    ],
+    requestId,
+  );
+  const response = result.methodResponses.find(
+    ([name, , callId]) => name === "Email/get" && callId === "email",
+  );
+  const list = response?.[1]?.list;
+  const message = Array.isArray(list) ? list[0] : undefined;
+  if (!message) {
+    throw new MailApiError(
+      404,
+      "MAIL_OPERATION_NOT_FOUND",
+      "Message not found",
+    );
+  }
+  return message;
 }
 
 export async function markMessageRead(
@@ -385,15 +458,21 @@ export async function sendMessage(
     ? (mailboxList as Array<{ id: string; role?: string }>)
     : [];
   const drafts = mailboxes.find((mailbox) => mailbox.role === "drafts");
+  const sent = mailboxes.find((mailbox) => mailbox.role === "sent");
 
-  if (!identity || !drafts)
+  if (!identity || !drafts || !sent)
     throw new MailApiError(
       502,
       "JMAP_INVALID_RESPONSE",
-      "Mail identity or Drafts mailbox is missing",
+      "Mail identity, Drafts mailbox, or Sent mailbox is missing",
     );
 
-  const created = await jmapSecure(
+  const recipients = input.to
+    .split(",")
+    .map((email) => ({ email: email.trim() }))
+    .filter(({ email }) => email);
+
+  const submitted = await jmapSecure(
     accessToken,
     [
       [
@@ -405,10 +484,7 @@ export async function sendMessage(
               mailboxIds: { [drafts.id]: true },
               keywords: { $draft: true },
               from: [{ email: identity.email }],
-              to: input.to
-                .split(",")
-                .map((email) => ({ email: email.trim() }))
-                .filter(({ email }) => email),
+              to: recipients,
               subject: input.subject,
               ...(input.inReplyTo
                 ? { "header:In-Reply-To:asText": input.inReplyTo }
@@ -423,33 +499,109 @@ export async function sendMessage(
         },
         "draft",
       ],
-    ],
-    requestId,
-  );
-
-  const createdDraft = created.methodResponses[0]?.[1] as
-    | { created?: { draft?: { id?: string } } }
-    | undefined;
-  const emailId = createdDraft?.created?.draft?.id;
-  if (!emailId) {
-    console.error("[Stalwart] Draft creation failed");
-    throw new MailApiError(502, "JMAP_REQUEST_FAILED", "Draft creation failed");
-  }
-
-  const submitted = await jmapSecure(
-    accessToken,
-    [
       [
         "EmailSubmission/set",
-        { accountId, create: { send: { identityId: identity.id, emailId } } },
+        {
+          accountId,
+          create: {
+            send: {
+              identityId: identity.id,
+              emailId: "#draft",
+              envelope: {
+                mailFrom: { email: identity.email },
+                rcptTo: recipients,
+              },
+            },
+          },
+          onSuccessUpdateEmail: {
+            "#send": {
+              [`mailboxIds/${drafts.id}`]: null,
+              [`mailboxIds/${sent.id}`]: true,
+              "keywords/$draft": null,
+              "keywords/$seen": true,
+            },
+          },
+        },
         "submission",
       ],
     ],
     requestId,
   );
 
-  const submissionResponse = submitted.methodResponses[0]?.[1] as
-    | { created?: Record<string, unknown> }
+  const draftResponse = submitted.methodResponses.find(
+    ([name, , callId]) => name === "Email/set" && callId === "draft",
+  )?.[1] as
+    | {
+        created?: { draft?: { id?: string } };
+        notCreated?: { draft?: Record<string, unknown> };
+      }
     | undefined;
-  return submissionResponse?.created ?? {};
+  if (draftResponse?.notCreated?.draft) {
+    throwMailSetError(draftResponse.notCreated.draft, "Draft creation failed");
+  }
+  const emailId = draftResponse?.created?.draft?.id;
+  if (!emailId) {
+    throw new MailApiError(
+      502,
+      "JMAP_INVALID_RESPONSE",
+      "Draft creation failed",
+    );
+  }
+
+  const submissionResponse = submitted.methodResponses.find(
+    ([name, , callId]) =>
+      name === "EmailSubmission/set" && callId === "submission",
+  )?.[1] as
+    | {
+        created?: { send?: { id?: string } };
+        notCreated?: { send?: Record<string, unknown> };
+      }
+    | undefined;
+  if (submissionResponse?.notCreated?.send) {
+    throwMailSetError(
+      submissionResponse.notCreated.send,
+      "Message submission failed",
+    );
+  }
+  const submissionId = submissionResponse?.created?.send?.id;
+  if (!submissionId) {
+    throw new MailApiError(
+      502,
+      "JMAP_INVALID_RESPONSE",
+      "Message submission failed",
+    );
+  }
+  return { emailId, submissionId };
+}
+
+function throwMailSetError(
+  failure: Record<string, unknown>,
+  fallbackMessage: string,
+): never {
+  const type = typeof failure.type === "string" ? failure.type : "";
+  if (type === "invalidRecipients" || type === "noRecipients") {
+    throw new MailApiError(422, "MAIL_RECIPIENTS_INVALID", "Invalid recipient");
+  }
+  if (type === "forbiddenMailFrom" || type === "forbiddenFrom") {
+    throw new MailApiError(
+      403,
+      "MAIL_SENDER_FORBIDDEN",
+      "Sender is not allowed",
+    );
+  }
+  if (type === "tooLarge") {
+    throw new MailApiError(
+      413,
+      "MAIL_MESSAGE_TOO_LARGE",
+      "Message is too large",
+    );
+  }
+  if (type === "overQuota") {
+    throw new MailApiError(
+      507,
+      "MAIL_QUOTA_EXCEEDED",
+      "Mailbox quota exceeded",
+    );
+  }
+  throw new MailApiError(502, "JMAP_REQUEST_FAILED", fallbackMessage);
 }

@@ -9,7 +9,11 @@ import {
   type MeAuthQueryVariables,
 } from "@/generated/graphql";
 import { setCurrentUser } from "@/lib/apollo/auth-context";
-import { AuthEventsBus, AuthManager } from "@/lib/auth/AuthManager";
+import {
+  AuthEventsBus,
+  AuthManager,
+  isRetryableAuthError,
+} from "@/lib/auth/AuthManager";
 import { mapRoleToPermissions } from "../rbac/roleMapping";
 import type { User } from "../types/auth";
 
@@ -27,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authUser, setAuthUser] = useState<MeAuthQuery["meAuth"] | null>(null);
 
-  const { data, loading, refetch } = useQuery<
+  const { data, loading, error, refetch } = useQuery<
     MeAuthQuery,
     MeAuthQueryVariables
   >(MeAuthDocument, {
@@ -40,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!data?.meAuth) {
-      if (!loading) {
+      if (!loading && (!error || !isRetryableAuthError(error))) {
         setUser(null);
         setAuthUser(null);
         setCurrentUser(null);
@@ -62,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       roles,
       permissions,
     });
-  }, [data, loading]);
+  }, [data, error, loading]);
 
   useEffect(() => {
     const handleLogin = async () => {
@@ -79,16 +83,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await refetch();
     };
 
+    const handleSessionExpired = async () => {
+      setUser(null);
+      setAuthUser(null);
+      setCurrentUser(null);
+      await client.clearStore();
+      window.location.href = "/login";
+    };
+
     AuthEventsBus.on("auth:login", handleLogin);
     AuthEventsBus.on("auth:logout", handleLogout);
+    AuthEventsBus.on("auth:session-expired", handleSessionExpired);
     AuthEventsBus.on("session:refreshed", handleRefresh);
 
     return () => {
       AuthEventsBus.off("auth:login", handleLogin);
       AuthEventsBus.off("auth:logout", handleLogout);
+      AuthEventsBus.off("auth:session-expired", handleSessionExpired);
       AuthEventsBus.off("session:refreshed", handleRefresh);
     };
-  }, [refetch]);
+  }, [client, refetch]);
 
   const logout = async (): Promise<void> => {
     await AuthManager.logout();

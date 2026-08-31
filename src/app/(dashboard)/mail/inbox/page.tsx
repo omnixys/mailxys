@@ -12,7 +12,13 @@ import { MessageList } from "@/features/mail/components/MessageList";
 import { useMailStore } from "@/features/mail/store/useMailStore";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 
-export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
+export function MailPage({
+  initialRole = "inbox",
+  initialCompose = false,
+}: {
+  initialRole?: string;
+  initialCompose?: boolean;
+}) {
   const theme = useTheme();
   const {
     setMailboxes,
@@ -26,10 +32,15 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
     requestRefresh,
     loading,
     error,
+    openCompose,
   } = useMailStore();
   const t = useTypedTranslations("mail");
   const consecutiveMessageFailures = useRef(0);
   const [pollingPaused, setPollingPaused] = useState(false);
+
+  useEffect(() => {
+    if (initialCompose) openCompose();
+  }, [initialCompose, openCompose]);
 
   const retryMail = () => {
     consecutiveMessageFailures.current = 0;

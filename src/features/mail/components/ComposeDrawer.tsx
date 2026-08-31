@@ -18,6 +18,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { jmapClient } from "@/api/jmap/jmapClient";
 import { mailErrorTranslationKey } from "@/api/jmap/mailErrorTranslation";
@@ -27,6 +28,7 @@ import { useMailStore } from "../store/useMailStore";
 export function ComposeDrawer() {
   const theme = useTheme();
   const t = useTypedTranslations("mail");
+  const { enqueueSnackbar } = useSnackbar();
   const { composeOpen, composeData, closeCompose } = useMailStore();
 
   const [to, setTo] = useState(composeData?.to ?? "");
@@ -57,6 +59,7 @@ export function ComposeDrawer() {
           ? { references: composeData.references }
           : {}),
       });
+      enqueueSnackbar(t("messageSent"), { variant: "success" });
       closeCompose();
       useMailStore.getState().requestRefresh();
     } catch (error) {
@@ -202,9 +205,7 @@ export function ComposeDrawer() {
           borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Typography variant="caption" color="text.secondary">
-          {t("draftSaved")}
-        </Typography>
+        <Box />
         <IconButton
           onClick={handleSend}
           disabled={sending || !to.trim() || !body.trim()}

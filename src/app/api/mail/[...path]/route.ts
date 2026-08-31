@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import {
   ensureMailAccount,
   getMailboxes,
+  getMessage,
   getMessages,
   MailApiError,
   mailAccessToken,
@@ -41,13 +42,13 @@ export async function GET(
 ) {
   const requestId = requestIdFor(request);
   try {
-    const path = (await params).path.join("/");
-    if (path === "mailboxes") {
+    const parts = (await params).path;
+    if (parts.length === 1 && parts[0] === "mailboxes") {
       const { accessToken, accountId } = await context(requestId);
       const mailboxes = await getMailboxes(accessToken, accountId, requestId);
       return NextResponse.json(mailboxes);
     }
-    if (path === "messages") {
+    if (parts.length === 1 && parts[0] === "messages") {
       const mailboxId = request.nextUrl.searchParams.get("mailboxId");
       if (!mailboxId) {
         throw new MailApiError(422, "INVALID_REQUEST", "mailboxId is required");
@@ -60,6 +61,16 @@ export async function GET(
         requestId,
       );
       return NextResponse.json(messages);
+    }
+    if (parts.length === 2 && parts[0] === "messages" && parts[1]) {
+      const { accessToken, accountId } = await context(requestId);
+      const message = await getMessage(
+        accessToken,
+        accountId,
+        parts[1],
+        requestId,
+      );
+      return NextResponse.json(message);
     }
     throw new MailApiError(
       404,

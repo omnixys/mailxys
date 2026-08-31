@@ -12,61 +12,60 @@ import {
   StarRounded,
 } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
   Box,
   Chip,
+  CircularProgress,
   Divider,
   IconButton,
   Typography,
   useTheme,
 } from "@mui/material";
 import { format, parseISO } from "date-fns";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { jmapClient } from "@/api/jmap/jmapClient";
+import type { JmapEmail } from "@/features/mail/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
+import { resolveMessageBody, safeHtmlDocument } from "../lib/messageBody";
 import { useMailStore } from "../store/useMailStore";
 
 export function MessageDetail() {
   const theme = useTheme();
   const t = useTypedTranslations("mail");
   const { emails, selectedEmailId, openCompose } = useMailStore();
-  const email = useMemo(
+  const summaryEmail = useMemo(
     () => emails.find((e) => e.id === selectedEmailId) ?? null,
     [emails, selectedEmailId],
   );
+  const [detailEmail, setDetailEmail] = useState<JmapEmail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState(false);
 
-  // Resolve body content dynamically from JMAP bodyValues using textBody/htmlBody partIds
-  const { bodyHtml, bodyText: resolvedBodyText } = useMemo(() => {
-    if (!email) return { bodyHtml: "", bodyText: "" };
+  useEffect(() => {
+    setDetailEmail(null);
+    setDetailError(false);
+    if (!selectedEmailId) return;
+    const controller = new AbortController();
+    setDetailLoading(true);
+    void jmapClient
+      .getMessage(selectedEmailId, controller.signal)
+      .then(setDetailEmail)
+      .catch((error: unknown) => {
+        if (error instanceof Error && error.name === "AbortError") return;
+        setDetailError(true);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setDetailLoading(false);
+      });
+    return () => controller.abort();
+  }, [selectedEmailId]);
 
-    // Prefer HTML body, fall back to plain text
-    const htmlPartId = email.htmlBody?.[0]?.partId;
-    const textPartId = email.textBody?.[0]?.partId;
-
-    const getBodyValue = (partId?: string) => {
-      if (!partId) return "";
-      const value = email.bodyValues?.[partId]?.value ?? "";
-      // Handle base64 encoded bodies (some mail servers return base64)
-      try {
-        // Check if value looks like base64 (only base64 chars, length multiple of 4)
-        if (
-          value &&
-          /^[A-Za-z0-9+/]+={0,2}$/.test(value) &&
-          value.length % 4 === 0 &&
-          value.length > 100
-        ) {
-          return atob(value);
-        }
-      } catch {
-        // Not valid base64, return as-is
-      }
-      return value;
-    };
-
-    return {
-      bodyHtml: getBodyValue(htmlPartId),
-      bodyText: getBodyValue(textPartId),
-    };
-  }, [email]);
+  const email = detailEmail ?? summaryEmail;
+  const resolvedBody = useMemo(
+    () => (email ? resolveMessageBody(email) : { content: "", isHtml: false }),
+    [email],
+  );
 
   if (!email) {
     return (
@@ -95,8 +94,8 @@ export function MessageDetail() {
   const senderInitial = senderName.charAt(0).toUpperCase();
 
   // Prefer HTML for rendering, fall back to plain text
-  const bodyContent = bodyHtml || resolvedBodyText || t("noContent");
-  const isHtml = !!bodyHtml;
+  const bodyContent = resolvedBody.content || t("noContent");
+  const isHtml = resolvedBody.isHtml;
 
   const isFlagged = !!email.keywords.$flagged;
 
@@ -179,7 +178,7 @@ export function MessageDetail() {
             openCompose({
               mode: "forward",
               subject: `Fwd: ${email.subject}`,
-              body: resolvedBodyText,
+              body: isHtml ? (email.preview ?? "") : resolvedBody.content,
             })
           }
           title={t("forward")}
@@ -292,6 +291,12 @@ export function MessageDetail() {
         )}
 
         {/* Body */}
+        {detailLoading && <CircularProgress size={20} sx={{ mb: 2 }} />}
+        {detailError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {t("messageLoadFailed")}
+          </Alert>
+        )}
         <Box
           sx={{
             fontFamily: "'Inter', sans-serif",
@@ -306,7 +311,8 @@ export function MessageDetail() {
             <Box
               component="iframe"
               sandbox=""
-              srcDoc={bodyContent}
+              referrerPolicy="no-referrer"
+              srcDoc={safeHtmlDocument(bodyContent)}
               title={email.subject}
               sx={{
                 width: "100%",

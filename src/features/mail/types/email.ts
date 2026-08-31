@@ -7,6 +7,7 @@ export interface JmapBodyPart {
   partId: string;
   type: string;
   size: number;
+  subParts?: JmapBodyPart[];
 }
 
 export interface JmapBodyValue {
@@ -46,4 +47,6 @@ export interface JmapEmail {
   bodyValues: Record<string, JmapBodyValue>;
   headers: JmapHeader[];
   hasAttachment?: boolean;
+  preview?: string;
+  bodyStructure?: JmapBodyPart;
 }

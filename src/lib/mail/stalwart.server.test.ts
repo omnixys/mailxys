@@ -15,6 +15,7 @@ vi.mock("@/config/env.server", () => ({
 
 import {
   ensureMailAccount,
+  getMessage,
   jmapSecure,
   mailAccessToken,
   sendMessage,
@@ -78,7 +79,12 @@ describe("Stalwart server client", () => {
             ],
             [
               "Mailbox/get",
-              { list: [{ id: "drafts", role: "drafts" }] },
+              {
+                list: [
+                  { id: "drafts", role: "drafts" },
+                  { id: "sent", role: "sent" },
+                ],
+              },
               "mailboxes",
             ],
           ],
@@ -88,13 +94,11 @@ describe("Stalwart server client", () => {
         Response.json({
           methodResponses: [
             ["Email/set", { created: { draft: { id: "email" } } }, "draft"],
-          ],
-        }),
-      )
-      .mockResolvedValueOnce(
-        Response.json({
-          methodResponses: [
-            ["EmailSubmission/set", { created: { send: {} } }, "submission"],
+            [
+              "EmailSubmission/set",
+              { created: { send: { id: "submission" } } },
+              "submission",
+            ],
           ],
         }),
       );
@@ -106,12 +110,100 @@ describe("Stalwart server client", () => {
         { to: "you@test", subject: "Hello", body: "World" },
         "request-1",
       ),
-    ).resolves.toEqual({ send: {} });
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    ).resolves.toEqual({ emailId: "email", submissionId: "submission" });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     for (const call of fetchMock.mock.calls) {
       expect(new Headers(call[1]?.headers).get("authorization")).toBe(
         "Bearer mail-token",
       );
     }
+    const request = JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body));
+    expect(request.methodCalls[1][1]).toMatchObject({
+      create: {
+        send: {
+          emailId: "#draft",
+          identityId: "identity",
+          envelope: {
+            mailFrom: { email: "me@test" },
+            rcptTo: [{ email: "you@test" }],
+          },
+        },
+      },
+      onSuccessUpdateEmail: {
+        "#send": {
+          "mailboxIds/drafts": null,
+          "mailboxIds/sent": true,
+          "keywords/$draft": null,
+          "keywords/$seen": true,
+        },
+      },
+    });
+  });
+
+  it("rejects a per-object submission failure", async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        Response.json({
+          methodResponses: [
+            [
+              "Identity/get",
+              { list: [{ id: "identity", email: "me@test" }] },
+              "identities",
+            ],
+            [
+              "Mailbox/get",
+              {
+                list: [
+                  { id: "drafts", role: "drafts" },
+                  { id: "sent", role: "sent" },
+                ],
+              },
+              "mailboxes",
+            ],
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          methodResponses: [
+            ["Email/set", { created: { draft: { id: "email" } } }, "draft"],
+            [
+              "EmailSubmission/set",
+              { notCreated: { send: { type: "invalidRecipients" } } },
+              "submission",
+            ],
+          ],
+        }),
+      );
+
+    await expect(
+      sendMessage(
+        "mail-token",
+        "account",
+        { to: "invalid", subject: "Hello", body: "World" },
+        "request-1",
+      ),
+    ).rejects.toMatchObject({ status: 422, code: "MAIL_RECIPIENTS_INVALID" });
+  });
+
+  it("loads a complete message body by id", async () => {
+    fetchMock.mockResolvedValue(
+      Response.json({
+        methodResponses: [
+          ["Email/get", { list: [{ id: "message", bodyValues: {} }] }, "email"],
+        ],
+      }),
+    );
+
+    await expect(
+      getMessage("mail-token", "account", "message", "request-1"),
+    ).resolves.toMatchObject({ id: "message" });
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(request.methodCalls[0][1]).toMatchObject({
+      ids: ["message"],
+      fetchTextBodyValues: true,
+      fetchHTMLBodyValues: true,
+      fetchAllBodyValues: true,
+    });
   });
 });

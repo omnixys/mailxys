@@ -4,6 +4,10 @@ export type MailErrorTranslationKey =
   | "mailAccountMissing"
   | "mailAuthUnavailable"
   | "mailRateLimited"
+  | "mailRecipientsInvalid"
+  | "mailSenderForbidden"
+  | "mailMessageTooLarge"
+  | "mailQuotaExceeded"
   | "mailServiceUnavailable"
   | "sessionExpired";
 
@@ -16,6 +20,10 @@ export function mailErrorTranslationKey(
   }
   if (error.code === "MAIL_ACCOUNT_MISSING") return "mailAccountMissing";
   if (error.code === "MAIL_RATE_LIMITED") return "mailRateLimited";
+  if (error.code === "MAIL_RECIPIENTS_INVALID") return "mailRecipientsInvalid";
+  if (error.code === "MAIL_SENDER_FORBIDDEN") return "mailSenderForbidden";
+  if (error.code === "MAIL_MESSAGE_TOO_LARGE") return "mailMessageTooLarge";
+  if (error.code === "MAIL_QUOTA_EXCEEDED") return "mailQuotaExceeded";
   if (
     error.code === "MAIL_AUTH_INVALID_RESPONSE" ||
     error.code === "MAIL_AUTH_UNAVAILABLE" ||

@@ -90,7 +90,7 @@ function MessageItem({
   const isFlagged = !!email.keywords.$flagged;
   const senderName = email.from[0]?.name ?? email.from[0]?.email ?? "Unknown";
   const senderInitial = senderName.charAt(0).toUpperCase();
-  const preview = email.bodyValues.t1?.value ?? "";
+  const preview = email.preview ?? "";
   const truncatedPreview =
     preview.length > 100 ? `${preview.slice(0, 100)}...` : preview;
 

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mail = vi.hoisted(() => ({
   ensureMailAccount: vi.fn(),
+  getMessage: vi.fn(),
   getMailboxes: vi.fn(),
   getMessages: vi.fn(),
   mailAccessToken: vi.fn(),
@@ -32,6 +33,7 @@ describe("mail route", () => {
     mail.ensureMailAccount.mockResolvedValue("account");
     mail.getMailboxes.mockResolvedValue([{ id: "inbox" }]);
     mail.getMessages.mockResolvedValue([{ id: "message" }]);
+    mail.getMessage.mockResolvedValue({ id: "message", bodyValues: {} });
     mail.sendMessage.mockResolvedValue({ send: {} });
   });
 
@@ -87,5 +89,35 @@ describe("mail route", () => {
       { to: "you@test", subject: "Hello", body: "World" },
       expect.any(String),
     );
+  });
+
+  it("loads one complete message with exactly one token exchange", async () => {
+    const response = await GET(
+      new NextRequest("http://localhost/api/mail/messages/message-1"),
+      { params: Promise.resolve({ path: ["messages", "message-1"] }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(mail.mailAccessToken).toHaveBeenCalledTimes(1);
+    expect(mail.getMessage).toHaveBeenCalledWith(
+      "mail-token",
+      "account",
+      "message-1",
+      expect.any(String),
+    );
+  });
+
+  it("rejects unknown route shapes before using mail credentials", async () => {
+    const response = await GET(
+      new NextRequest("http://localhost/api/mail/messages/message-1/extra"),
+      {
+        params: Promise.resolve({
+          path: ["messages", "message-1", "extra"],
+        }),
+      },
+    );
+
+    expect(response.status).toBe(404);
+    expect(mail.mailAccessToken).not.toHaveBeenCalled();
   });
 });
