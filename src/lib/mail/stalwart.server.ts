@@ -39,7 +39,6 @@ export async function mailAccessToken(requestId: string): Promise<string> {
     );
   }
   try {
-    console.log(`env.OMNIMAIL_SERVICE_TOKEN: ${env.OMNIMAIL_SERVICE_TOKEN}`);
     const res = await fetch(required("MAIL_TOKEN_URL"), {
       method: "POST",
       headers: {
