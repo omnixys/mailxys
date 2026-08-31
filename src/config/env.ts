@@ -40,8 +40,8 @@ export const env = {
     },
   ),
   CHECKPOINT_BASE_PATH: getEnv(
-    "NEXT_PUBLIC_CHECKPOINT_BASE_PATH",
-    process.env.NEXT_PUBLIC_CHECKPOINT_BASE_PATH,
+    "NEXT_PUBLIC_CHECKPOINT_HOME_URL",
+    process.env.NEXT_PUBLIC_CHECKPOINT_HOME_URL,
     { required: true, transform: toHttpUrl },
   ),
   APP_URL,
