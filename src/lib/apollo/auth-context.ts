@@ -1,3 +1,4 @@
+import { env } from "@/config/env";
 import type { MeAuthQuery } from "@/generated/graphql";
 
 /**
@@ -5,7 +6,7 @@ import type { MeAuthQuery } from "@/generated/graphql";
  * @omnixys/contracts-ts). Kept local: the published contracts package
  * is not a dependency of this project.
  */
-const OMNIXYS_TENANT_ID = "6e788f7f-c233-4cb8-bbde-c0b855e564be";
+const OMNIXYS_TENANT_ID = env.OMNIXYS_TENANT_ID;
 
 interface InternalAuthContext {
   actorId: string | null;
