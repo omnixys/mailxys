@@ -47,6 +47,7 @@ export async function mailAccessToken(requestId: string): Promise<string> {
         "x-omnimail-service-token": env.OMNIMAIL_SERVICE_TOKEN,
         "x-request-id": requestId,
         "x-correlation-id": requestId,
+        "x-tenant-id": env.OMNIXYS_TENANT_ID,
       },
       cache: "no-store",
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
