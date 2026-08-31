@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-
-function required(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing env ${name}`);
-  return value;
-}
+import { env } from "@/config/env.server";
 
 function retryCookieBase(): string {
   const isProd = process.env.NODE_ENV === "production";
@@ -33,7 +28,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   console.log("[Login] GraphQL credentialsLogin");
   let gatewayResponse: Response;
   try {
-    gatewayResponse = await fetch(required("BACKEND_SERVER_URL"), {
+    gatewayResponse = await fetch(env.BACKEND_SERVER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
