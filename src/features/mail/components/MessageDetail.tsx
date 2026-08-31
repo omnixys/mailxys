@@ -34,6 +34,40 @@ export function MessageDetail() {
     [emails, selectedEmailId],
   );
 
+  // Resolve body content dynamically from JMAP bodyValues using textBody/htmlBody partIds
+  const { bodyHtml, bodyText: resolvedBodyText } = useMemo(() => {
+    if (!email) return { bodyHtml: "", bodyText: "" };
+
+    // Prefer HTML body, fall back to plain text
+    const htmlPartId = email.htmlBody?.[0]?.partId;
+    const textPartId = email.textBody?.[0]?.partId;
+
+    const getBodyValue = (partId?: string) => {
+      if (!partId) return "";
+      const value = email.bodyValues?.[partId]?.value ?? "";
+      // Handle base64 encoded bodies (some mail servers return base64)
+      try {
+        // Check if value looks like base64 (only base64 chars, length multiple of 4)
+        if (
+          value &&
+          /^[A-Za-z0-9+/]+={0,2}$/.test(value) &&
+          value.length % 4 === 0 &&
+          value.length > 100
+        ) {
+          return atob(value);
+        }
+      } catch {
+        // Not valid base64, return as-is
+      }
+      return value;
+    };
+
+    return {
+      bodyHtml: getBodyValue(htmlPartId),
+      bodyText: getBodyValue(textPartId),
+    };
+  }, [email]);
+
   if (!email) {
     return (
       <Box
@@ -59,7 +93,11 @@ export function MessageDetail() {
     email.from[0]?.name ?? email.from[0]?.email ?? t("unknownSender");
   const senderEmail = email.from[0]?.email ?? "";
   const senderInitial = senderName.charAt(0).toUpperCase();
-  const bodyText = email.bodyValues.t1?.value ?? t("noContent");
+
+  // Prefer HTML for rendering, fall back to plain text
+  const bodyContent = bodyHtml || resolvedBodyText || t("noContent");
+  const isHtml = !!bodyHtml;
+
   const isFlagged = !!email.keywords.$flagged;
 
   const senderColors = [
@@ -141,7 +179,7 @@ export function MessageDetail() {
             openCompose({
               mode: "forward",
               subject: `Fwd: ${email.subject}`,
-              body: bodyText,
+              body: resolvedBodyText,
             })
           }
           title={t("forward")}
@@ -260,11 +298,25 @@ export function MessageDetail() {
             fontSize: "0.9375rem",
             lineHeight: 1.7,
             color: "text.primary",
-            whiteSpace: "pre-wrap",
+            whiteSpace: isHtml ? "normal" : "pre-wrap",
             wordBreak: "break-word",
           }}
         >
-          {bodyText}
+          {isHtml ? (
+            <Box
+              component="iframe"
+              sandbox=""
+              srcDoc={bodyContent}
+              title={email.subject}
+              sx={{
+                width: "100%",
+                minHeight: 320,
+                border: 0,
+              }}
+            />
+          ) : (
+            <span style={{ whiteSpace: "pre-wrap" }}>{bodyContent}</span>
+          )}
         </Box>
       </Box>
     </Box>
