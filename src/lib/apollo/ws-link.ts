@@ -1,14 +1,14 @@
 import { ApolloLink, Observable } from "@apollo/client";
 import { print } from "graphql";
 import { type Client, createClient } from "graphql-ws";
-import { env } from "@/lib/env";
+import { env } from "@/config/env";
 import { getAccessTokenClient } from "./cookie.utils";
 
 export function createWsLink(): ApolloLink | null {
   if (typeof window === "undefined") return null;
 
   const client: Client = createClient({
-    url: env.NEXT_PUBLIC_GRAPHQL_WS_URL,
+    url: env.BACKEND_WS_URL,
     lazy: true,
     retryAttempts: Number.POSITIVE_INFINITY,
     retryWait: async (retries) => {

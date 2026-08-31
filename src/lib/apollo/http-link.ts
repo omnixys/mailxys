@@ -1,7 +1,7 @@
 import { ApolloLink, HttpLink, Observable } from "@apollo/client";
 import { ErrorLink } from "@apollo/client/link/error";
+import { env } from "@/config/env";
 import { getAuthContext } from "@/lib/apollo/auth-context";
-import { env } from "@/lib/env";
 import { getAccessTokenClient } from "./cookie.utils";
 
 function isAbortError(error: unknown): boolean {
@@ -95,7 +95,7 @@ export function createHttpLink(): ApolloLink {
   const loggingLink = createLoggingLink();
 
   const httpLink = new HttpLink({
-    uri: env.NEXT_PUBLIC_BACKEND_SERVER_URL,
+    uri: env.BACKEND_SERVER_URL,
     credentials: "include",
   });
 
