@@ -8,10 +8,12 @@ import {
   MoreVertRounded,
 } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
   Chip,
+  CircularProgress,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -20,67 +22,27 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { adminClient } from "@/api/admin/adminClient";
+import { useAdminList } from "@/features/admin/hooks/useAdminList";
+import { toStalwartGroup } from "@/features/admin/lib/adapters";
+import type { StalwartGroup } from "@/features/admin/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
-interface MockGroup {
-  id: string;
-  name: string;
-  description: string;
-  members: number;
-  created: string;
-  color: string;
-}
-
-const mockGroups: MockGroup[] = [
-  {
-    id: "g1",
-    name: "Engineering",
-    description: "All engineering staff",
-    members: 24,
-    created: "2025-01-15",
-    color: "#3B82F6",
-  },
-  {
-    id: "g2",
-    name: "Marketing",
-    description: "Marketing and growth team",
-    members: 12,
-    created: "2025-02-20",
-    color: "#8B5CF6",
-  },
-  {
-    id: "g3",
-    name: "Support",
-    description: "Customer support team",
-    members: 18,
-    created: "2025-03-10",
-    color: "#22C55E",
-  },
-  {
-    id: "g4",
-    name: "Admins",
-    description: "System administrators",
-    members: 4,
-    created: "2025-01-01",
-    color: "#EF4444",
-  },
-  {
-    id: "g5",
-    name: "All Staff",
-    description: "Company-wide distribution list",
-    members: 58,
-    created: "2025-01-01",
-    color: "#F59E0B",
-  },
-];
+const GROUP_COLORS = ["#3B82F6", "#8B5CF6", "#22C55E", "#EF4444", "#F59E0B"];
 
 export default function GroupsPage() {
   const theme = useTheme();
   const t = useTypedTranslations("admin");
-  const [groups, setGroups] = useState(mockGroups);
+  const {
+    data: rawGroups,
+    loading,
+    error,
+    refetch,
+  } = useAdminList(useCallback(() => adminClient.getGroups(), []));
+  const groups = rawGroups.map(toStalwartGroup);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -96,11 +58,11 @@ export default function GroupsPage() {
   };
 
   const handleDelete = (id: string) => {
-    setGroups((prev) => prev.filter((g) => g.id !== id));
+    void adminClient.deleteGroup(id).then(() => refetch());
     handleMenuClose();
   };
 
-  const columns: Column<MockGroup>[] = [
+  const columns: Column<StalwartGroup>[] = [
     {
       id: "name",
       label: t("groupName"),
@@ -113,8 +75,8 @@ export default function GroupsPage() {
               height: 32,
               fontSize: "0.75rem",
               fontWeight: 700,
-              bgcolor: `${row.color}18`,
-              color: row.color,
+              bgcolor: `${GROUP_COLORS[groups.indexOf(row) % GROUP_COLORS.length]}18`,
+              color: GROUP_COLORS[groups.indexOf(row) % GROUP_COLORS.length],
             }}
           >
             <GroupRounded sx={{ fontSize: "1rem" }} />
@@ -126,9 +88,11 @@ export default function GroupsPage() {
             >
               {row.name}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {row.description}
-            </Typography>
+            {row.description && (
+              <Typography variant="caption" color="text.secondary">
+                {row.description}
+              </Typography>
+            )}
           </Box>
         </Box>
       ),
@@ -139,7 +103,7 @@ export default function GroupsPage() {
       sortable: true,
       accessor: (row) => (
         <Typography variant="body2" sx={{ fontSize: "0.8125rem" }}>
-          {row.description}
+          {row.description ?? "—"}
         </Typography>
       ),
     },
@@ -147,10 +111,10 @@ export default function GroupsPage() {
       id: "members",
       label: t("members"),
       sortable: true,
-      sortAccessor: (row) => row.members,
+      sortAccessor: (row) => row.members.length,
       accessor: (row) => (
         <Chip
-          label={t("usersCount", { count: row.members })}
+          label={t("usersCount", { count: row.members.length })}
           size="small"
           sx={{
             height: 22,
@@ -160,19 +124,6 @@ export default function GroupsPage() {
             color: theme.palette.primary.main,
           }}
         />
-      ),
-    },
-    {
-      id: "created",
-      label: t("created"),
-      sortable: true,
-      accessor: (row) => (
-        <Typography
-          variant="body2"
-          sx={{ fontSize: "0.8125rem", color: "text.secondary" }}
-        >
-          {row.created}
-        </Typography>
       ),
     },
     {
@@ -199,11 +150,30 @@ export default function GroupsPage() {
           </Button>
         }
       />
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              {t("retry")}
+            </Button>
+          }
+        >
+          {t(error === "sessionExpired" ? "sessionExpired" : "loadFailed")}
+        </Alert>
+      )}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ position: "absolute", top: 16, right: 16 }}
+        />
+      )}
       <DataTable
         columns={columns}
         data={groups}
         searchPlaceholder={t("searchGroups")}
-        searchAccessor={(row) => `${row.name} ${row.description}`}
+        searchAccessor={(row) => `${row.name} ${row.description ?? ""}`}
         rowsPerPage={10}
       />
 

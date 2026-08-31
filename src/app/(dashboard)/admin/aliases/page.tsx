@@ -8,9 +8,11 @@ import {
   MoreVertRounded,
 } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Chip,
+  CircularProgress,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -19,8 +21,10 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
-import { mockAliases } from "@/features/admin/constants/mockData";
+import { useCallback, useState } from "react";
+import { adminClient } from "@/api/admin/adminClient";
+import { useAdminList } from "@/features/admin/hooks/useAdminList";
+import { toStalwartAlias } from "@/features/admin/lib/adapters";
 import type { StalwartAlias } from "@/features/admin/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
@@ -29,7 +33,13 @@ import { SectionHeader } from "@/shared/ui/SectionHeader";
 export default function AliasesPage() {
   const theme = useTheme();
   const t = useTypedTranslations("admin");
-  const [aliases, setAliases] = useState(mockAliases);
+  const {
+    data: rawAliases,
+    loading,
+    error,
+    refetch,
+  } = useAdminList(useCallback(() => adminClient.getAliases(), []));
+  const aliases = rawAliases.map(toStalwartAlias);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -45,7 +55,7 @@ export default function AliasesPage() {
   };
 
   const handleDelete = (id: string) => {
-    setAliases((prev) => prev.filter((a) => a.id !== id));
+    void adminClient.deleteAlias(id).then(() => refetch());
     handleMenuClose();
   };
 
@@ -157,6 +167,25 @@ export default function AliasesPage() {
           </Button>
         }
       />
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              {t("retry")}
+            </Button>
+          }
+        >
+          {t(error === "sessionExpired" ? "sessionExpired" : "loadFailed")}
+        </Alert>
+      )}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ position: "absolute", top: 16, right: 16 }}
+        />
+      )}
       <DataTable
         columns={columns}
         data={aliases}

@@ -149,5 +149,7 @@
   "groupsCount": "{count} groups configured",
   "quotasCount": "{count} quota plans configured",
   "accountsCount": "{count} accounts configured",
-  "usersCount": "{count} users"
+  "usersCount": "{count} users",
+  "loadFailed": "Failed to load admin data",
+  "sessionExpired": "Your session has expired"
 }

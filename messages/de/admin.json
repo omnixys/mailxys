@@ -149,5 +149,7 @@
   "groupsCount": "{count} Gruppen konfiguriert",
   "quotasCount": "{count} Quotenpläne konfiguriert",
   "accountsCount": "{count} Konten konfiguriert",
-  "usersCount": "{count} Benutzer"
+  "usersCount": "{count} Benutzer",
+  "loadFailed": "Admin-Daten konnten nicht geladen werden",
+  "sessionExpired": "Ihre Sitzung ist abgelaufen"
 }

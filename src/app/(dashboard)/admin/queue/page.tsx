@@ -1,21 +1,20 @@
 "use client";
 
+import { RefreshRounded } from "@mui/icons-material";
 import {
-  DeleteRounded,
-  RefreshRounded,
-  ReplayRounded,
-} from "@mui/icons-material";
-import {
+  Alert,
   Box,
   Button,
   Chip,
-  IconButton,
+  CircularProgress,
   Typography,
   useTheme,
 } from "@mui/material";
 import { formatDistanceToNow, parseISO } from "date-fns";
-import { useState } from "react";
-import { mockQueue } from "@/features/admin/constants/mockData";
+import { useCallback } from "react";
+import { adminClient } from "@/api/admin/adminClient";
+import { useAdminList } from "@/features/admin/hooks/useAdminList";
+import { toStalwartQueuedMessage } from "@/features/admin/lib/adapters";
 import type { StalwartQueuedMessage } from "@/features/admin/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
@@ -33,21 +32,13 @@ const statusColors: Record<string, { bg: string; color: string }> = {
 export default function QueuePage() {
   const theme = useTheme();
   const t = useTypedTranslations("admin");
-  const [items, setItems] = useState(mockQueue);
-
-  const handleRetry = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, status: "queued" as const, retryCount: 0 }
-          : item,
-      ),
-    );
-  };
-
-  const handleDelete = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
+  const {
+    data: rawQueue,
+    loading,
+    error,
+    refetch,
+  } = useAdminList(useCallback(() => adminClient.getQueue(), []));
+  const items = rawQueue.map(toStalwartQueuedMessage);
 
   const columns: Column<StalwartQueuedMessage>[] = [
     {
@@ -131,32 +122,6 @@ export default function QueuePage() {
         );
       },
     },
-    {
-      id: "actions",
-      label: "",
-      width: 80,
-      align: "right",
-      accessor: (row) => (
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          {row.status === "failed" && (
-            <IconButton
-              size="small"
-              onClick={() => handleRetry(row.id)}
-              title={t("retry")}
-            >
-              <ReplayRounded sx={{ fontSize: "1rem" }} />
-            </IconButton>
-          )}
-          <IconButton
-            size="small"
-            onClick={() => handleDelete(row.id)}
-            title={t("remove")}
-          >
-            <DeleteRounded sx={{ fontSize: "1rem" }} />
-          </IconButton>
-        </Box>
-      ),
-    },
   ];
 
   return (
@@ -169,11 +134,31 @@ export default function QueuePage() {
             startIcon={<RefreshRounded />}
             variant="outlined"
             size="small"
+            onClick={refetch}
           >
             {t("refresh")}
           </Button>
         }
       />
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              {t("retry")}
+            </Button>
+          }
+        >
+          {t(error === "sessionExpired" ? "sessionExpired" : "loadFailed")}
+        </Alert>
+      )}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ position: "absolute", top: 16, right: 16 }}
+        />
+      )}
       <DataTable
         columns={columns}
         data={items}

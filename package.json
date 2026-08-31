@@ -2,6 +2,7 @@
   "name": "omnimail",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,6 +25,8 @@
     "@mui/icons-material": "^9.2.0",
     "@mui/lab": "9.0.0-beta.6",
     "@mui/material": "^9.2.0",
+    "@omnixys/analytics-sdk": "1.0.0",
+    "@omnixys/observability-ts": "3.4.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@tanstack/react-query": "^5.101.2",

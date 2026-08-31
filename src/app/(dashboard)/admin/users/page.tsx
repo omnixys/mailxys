@@ -9,10 +9,12 @@ import {
   MoreVertRounded,
 } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
   Chip,
+  CircularProgress,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -21,8 +23,10 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
-import { mockAccounts } from "@/features/admin/constants/mockData";
+import { useCallback, useState } from "react";
+import { adminClient } from "@/api/admin/adminClient";
+import { useAdminList } from "@/features/admin/hooks/useAdminList";
+import { toStalwartAccount } from "@/features/admin/lib/adapters";
 import type { StalwartAccount } from "@/features/admin/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
@@ -31,7 +35,13 @@ import { SectionHeader } from "@/shared/ui/SectionHeader";
 export default function UsersPage() {
   const theme = useTheme();
   const t = useTypedTranslations("admin");
-  const [accounts, setAccounts] = useState(mockAccounts);
+  const {
+    data: rawAccounts,
+    loading,
+    error,
+    refetch,
+  } = useAdminList(useCallback(() => adminClient.getAccounts(), []));
+  const accounts = rawAccounts.map(toStalwartAccount);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -47,14 +57,17 @@ export default function UsersPage() {
   };
 
   const handleToggle = (id: string) => {
-    setAccounts((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, disabled: !a.disabled } : a)),
-    );
+    const account = accounts.find((a) => a.id === id);
+    if (account) {
+      void adminClient
+        .setAccountEnabled(id, account.disabled)
+        .then(() => refetch());
+    }
     handleMenuClose();
   };
 
   const handleDelete = (id: string) => {
-    setAccounts((prev) => prev.filter((a) => a.id !== id));
+    void adminClient.deleteAccount(id).then(() => refetch());
     handleMenuClose();
   };
 
@@ -190,6 +203,25 @@ export default function UsersPage() {
           </Button>
         }
       />
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              {t("retry")}
+            </Button>
+          }
+        >
+          {t(error === "sessionExpired" ? "sessionExpired" : "loadFailed")}
+        </Alert>
+      )}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ position: "absolute", top: 16, right: 16 }}
+        />
+      )}
       <DataTable
         columns={columns}
         data={accounts}

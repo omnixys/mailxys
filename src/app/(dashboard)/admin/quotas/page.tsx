@@ -1,110 +1,31 @@
 "use client";
 
-import {
-  AddRounded,
-  DataUsageRounded,
-  DeleteRounded,
-  EditRounded,
-  MoreVertRounded,
-} from "@mui/icons-material";
+import { AddRounded, DataUsageRounded } from "@mui/icons-material";
 import type { Theme } from "@mui/material";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
-  Chip,
-  IconButton,
+  CircularProgress,
   LinearProgress,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useCallback } from "react";
+import { adminClient } from "@/api/admin/adminClient";
+import { useAdminList } from "@/features/admin/hooks/useAdminList";
+import type { AdminQuota } from "@/features/admin/types/api";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
 
-interface MockQuota {
-  id: string;
-  name: string;
-  type: string;
-  storageLimit: number;
-  storageUsed: number;
-  messageLimit: number;
-  messageUsed: number;
-  active: boolean;
-  color: string;
-}
-
-const mockQuotas: MockQuota[] = [
-  {
-    id: "q1",
-    name: "Default",
-    type: "Standard",
-    storageLimit: 5120,
-    storageUsed: 1230,
-    messageLimit: 10000,
-    messageUsed: 3450,
-    active: true,
-    color: "#6B7280",
-  },
-  {
-    id: "q2",
-    name: "Premium",
-    type: "Upgraded",
-    storageLimit: 20480,
-    storageUsed: 8700,
-    messageLimit: 50000,
-    messageUsed: 21300,
-    active: true,
-    color: "#3B82F6",
-  },
-  {
-    id: "q3",
-    name: "Enterprise",
-    type: "Unlimited",
-    storageLimit: 102400,
-    storageUsed: 45200,
-    messageLimit: 500000,
-    messageUsed: 128000,
-    active: true,
-    color: "#8B5CF6",
-  },
-  {
-    id: "q4",
-    name: "Trial",
-    type: "Limited",
-    storageLimit: 1024,
-    storageUsed: 890,
-    messageLimit: 1000,
-    messageUsed: 870,
-    active: true,
-    color: "#F59E0B",
-  },
-  {
-    id: "q5",
-    name: "VIP",
-    type: "Premium",
-    storageLimit: 51200,
-    storageUsed: 0,
-    messageLimit: 200000,
-    messageUsed: 0,
-    active: false,
-    color: "#22C55E",
-  },
-];
-
-function formatSize(mb: number): string {
-  if (mb >= 1024) return `${(mb / 1024).toFixed(1)} GB`;
-  return `${mb} MB`;
-}
-
-function formatCount(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
+function formatSize(bytes: number): string {
+  if (bytes >= 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
 }
 
 function UsageBar({
@@ -118,7 +39,7 @@ function UsageBar({
   label: string;
   theme: Theme;
 }) {
-  const pct = Math.round((used / limit) * 100);
+  const pct = limit > 0 ? Math.round((used / limit) * 100) : 0;
   const isWarning = pct > 80;
   return (
     <Box>
@@ -152,27 +73,14 @@ function UsageBar({
 export default function QuotasPage() {
   const theme = useTheme();
   const t = useTypedTranslations("admin");
-  const [quotas, setQuotas] = useState(mockQuotas);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const {
+    data: quotas,
+    loading,
+    error,
+    refetch,
+  } = useAdminList<AdminQuota>(useCallback(() => adminClient.getQuotas(), []));
 
-  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>, id: string) => {
-    e.stopPropagation();
-    setAnchorEl(e.currentTarget);
-    setSelectedId(id);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedId(null);
-  };
-
-  const handleDelete = (id: string) => {
-    setQuotas((prev) => prev.filter((q) => q.id !== id));
-    handleMenuClose();
-  };
-
-  const columns: Column<MockQuota>[] = [
+  const columns: Column<AdminQuota>[] = [
     {
       id: "name",
       label: t("displayName"),
@@ -185,20 +93,18 @@ export default function QuotasPage() {
               height: 32,
               fontSize: "0.75rem",
               fontWeight: 700,
-              bgcolor: `${row.color}18`,
-              color: row.color,
+              bgcolor: `${theme.palette.primary.main}18`,
+              color: theme.palette.primary.main,
             }}
           >
             <DataUsageRounded sx={{ fontSize: "1rem" }} />
           </Avatar>
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
-            >
-              {row.name}
-            </Typography>
-          </Box>
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
+          >
+            {row.quotaType}
+          </Typography>
         </Box>
       ),
     },
@@ -207,95 +113,24 @@ export default function QuotasPage() {
       label: t("type"),
       sortable: true,
       accessor: (row) => (
-        <Chip
-          label={row.type}
-          size="small"
-          sx={{
-            height: 22,
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            bgcolor: `${row.color}12`,
-            color: row.color,
-          }}
+        <Typography variant="body2" sx={{ fontSize: "0.8125rem" }}>
+          {row.resourceType}
+        </Typography>
+      ),
+    },
+    {
+      id: "used",
+      label: t("storageUsed"),
+      sortable: true,
+      sortAccessor: (row) => row.used,
+      width: 220,
+      accessor: (row) => (
+        <UsageBar
+          used={row.used}
+          limit={row.limit}
+          label={`${formatSize(row.used)} / ${formatSize(row.limit)}`}
+          theme={theme}
         />
-      ),
-    },
-    {
-      id: "storageLimit",
-      label: t("storageLimit"),
-      sortable: true,
-      sortAccessor: (row) => row.storageLimit,
-      width: 180,
-      accessor: (row) => (
-        <Box>
-          <Typography
-            variant="caption"
-            sx={{ fontWeight: 500, display: "block", mb: 0.5 }}
-          >
-            {formatSize(row.storageUsed)} / {formatSize(row.storageLimit)}
-          </Typography>
-          <UsageBar
-            used={row.storageUsed}
-            limit={row.storageLimit}
-            label={t("storageUsed")}
-            theme={theme}
-          />
-        </Box>
-      ),
-    },
-    {
-      id: "messageLimit",
-      label: t("messageLimit"),
-      sortable: true,
-      sortAccessor: (row) => row.messageLimit,
-      width: 180,
-      accessor: (row) => (
-        <Box>
-          <Typography
-            variant="caption"
-            sx={{ fontWeight: 500, display: "block", mb: 0.5 }}
-          >
-            {formatCount(row.messageUsed)} / {formatCount(row.messageLimit)}
-          </Typography>
-          <UsageBar
-            used={row.messageUsed}
-            limit={row.messageLimit}
-            label={t("messagesUsed")}
-            theme={theme}
-          />
-        </Box>
-      ),
-    },
-    {
-      id: "status",
-      label: t("status"),
-      sortable: true,
-      sortAccessor: (row) => (row.active ? "active" : "inactive"),
-      accessor: (row) => (
-        <Chip
-          label={row.active ? t("active") : t("inactive")}
-          size="small"
-          sx={{
-            height: 22,
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            bgcolor: row.active
-              ? `${theme.palette.success.main}10`
-              : `${theme.palette.warning.main}10`,
-            color: row.active ? "success.main" : "warning.main",
-          }}
-        />
-      ),
-    },
-    {
-      id: "actions",
-      label: "",
-      width: 48,
-      align: "right",
-      accessor: (row) => (
-        <IconButton size="small" onClick={(e) => handleMenuOpen(e, row.id)}>
-          <MoreVertRounded sx={{ fontSize: "1.125rem" }} />
-        </IconButton>
       ),
     },
   ];
@@ -311,37 +146,32 @@ export default function QuotasPage() {
           </Button>
         }
       />
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              {t("retry")}
+            </Button>
+          }
+        >
+          {t(error === "sessionExpired" ? "sessionExpired" : "loadFailed")}
+        </Alert>
+      )}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ position: "absolute", top: 16, right: 16 }}
+        />
+      )}
       <DataTable
         columns={columns}
         data={quotas}
         searchPlaceholder={t("searchQuotas")}
-        searchAccessor={(row) => `${row.name} ${row.type}`}
+        searchAccessor={(row) => `${row.quotaType} ${row.resourceType}`}
         rowsPerPage={10}
       />
-
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleMenuClose}>
-          <ListItemIcon>
-            <EditRounded sx={{ fontSize: "1.125rem" }} />
-          </ListItemIcon>
-          <ListItemText>{t("edit")}</ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            if (selectedId) handleDelete(selectedId);
-          }}
-          sx={{ color: "error.main" }}
-        >
-          <ListItemIcon>
-            <DeleteRounded sx={{ fontSize: "1.125rem", color: "error.main" }} />
-          </ListItemIcon>
-          <ListItemText>{t("delete")}</ListItemText>
-        </MenuItem>
-      </Menu>
     </Box>
   );
 }

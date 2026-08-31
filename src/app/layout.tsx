@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { AuthProviders } from "@/auth/AuthProviders";
 import ThemeRegistry from "@/lib/mui/ThemeRegistry";
+import { AnalyticsRootProvider } from "@/providers/AnalyticsProvider";
 import { ApolloRootProvider } from "@/providers/ApolloProvider";
 import { ThemeModeProvider } from "@/providers/ThemeModeProvider";
 
@@ -45,7 +46,9 @@ export default async function RootLayout({
           <ThemeModeProvider>
             <NextIntlClientProvider messages={messages}>
               <ApolloRootProvider>
-                <AuthProviders>{children}</AuthProviders>
+                <AuthProviders>
+                  <AnalyticsRootProvider>{children}</AnalyticsRootProvider>
+                </AuthProviders>
               </ApolloRootProvider>
             </NextIntlClientProvider>
           </ThemeModeProvider>

@@ -4,6 +4,14 @@ const nextHeaders = vi.hoisted(() => ({ cookies: vi.fn() }));
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => nextHeaders);
+vi.mock("@/config/env.server", () => ({
+  env: {
+    MAIL_TOKEN_URL: "https://gateway.test/v1/mail/token",
+    OMNIMAIL_SERVICE_TOKEN: "service-token",
+    STALWART_JMAP_URL: "https://mail.test/jmap",
+    OMNIXYS_TENANT_ID: "default",
+  },
+}));
 
 import {
   ensureMailAccount,
@@ -19,7 +27,6 @@ describe("Stalwart server client", () => {
     fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
     vi.stubEnv("MAIL_TOKEN_URL", "https://gateway.test/v1/mail/token");
-    vi.stubEnv("OMNIMAIL_SERVICE_TOKEN", "service-token");
     vi.stubEnv("STALWART_JMAP_URL", "https://mail.test/jmap");
     nextHeaders.cookies.mockResolvedValue({
       get: () => ({ value: "platform-token" }),

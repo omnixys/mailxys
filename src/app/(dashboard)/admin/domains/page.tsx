@@ -10,11 +10,12 @@ import {
   WarningRounded,
 } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Chip,
+  CircularProgress,
   IconButton,
-  LinearProgress,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -22,8 +23,10 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
-import { mockDomains } from "@/features/admin/constants/mockData";
+import { useCallback, useState } from "react";
+import { adminClient } from "@/api/admin/adminClient";
+import { useAdminList } from "@/features/admin/hooks/useAdminList";
+import { toStalwartDomain } from "@/features/admin/lib/adapters";
 import type { StalwartDomain } from "@/features/admin/types";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { type Column, DataTable } from "@/shared/ui/DataTable";
@@ -32,7 +35,13 @@ import { SectionHeader } from "@/shared/ui/SectionHeader";
 export default function DomainsPage() {
   const theme = useTheme();
   const t = useTypedTranslations("admin");
-  const [domains, setDomains] = useState(mockDomains);
+  const {
+    data: rawDomains,
+    loading,
+    error,
+    refetch,
+  } = useAdminList(useCallback(() => adminClient.getDomains(), []));
+  const domains = rawDomains.map(toStalwartDomain);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -48,14 +57,17 @@ export default function DomainsPage() {
   };
 
   const handleToggle = (id: string) => {
-    setDomains((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, enabled: !d.enabled } : d)),
-    );
+    const domain = domains.find((d) => d.id === id);
+    if (domain) {
+      void adminClient
+        .setDomainEnabled(id, !domain.enabled)
+        .then(() => refetch());
+    }
     handleMenuClose();
   };
 
   const handleDelete = (id: string) => {
-    setDomains((prev) => prev.filter((d) => d.id !== id));
+    void adminClient.deleteDomain(id).then(() => refetch());
     handleMenuClose();
   };
 
@@ -128,51 +140,6 @@ export default function DomainsPage() {
       ),
     },
     {
-      id: "maxUsers",
-      label: t("users"),
-      sortable: true,
-      sortAccessor: (row) => row.maxUsers ?? 0,
-      width: 140,
-      accessor: (row) => {
-        const usage = Math.floor(Math.random() * (row.maxUsers ?? 10));
-        const pct = Math.round((usage / (row.maxUsers ?? 10)) * 100);
-        return (
-          <Box>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mb: 0.5,
-              }}
-            >
-              <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                {usage} / {row.maxUsers ?? "N/A"}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {pct}%
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
-              value={pct}
-              sx={{
-                height: 4,
-                borderRadius: 2,
-                bgcolor: `${theme.palette.primary.main}10`,
-                "& .MuiLinearProgress-bar": {
-                  borderRadius: 2,
-                  bgcolor:
-                    pct > 80
-                      ? theme.palette.warning.main
-                      : theme.palette.primary.main,
-                },
-              }}
-            />
-          </Box>
-        );
-      },
-    },
-    {
       id: "status",
       label: t("status"),
       sortable: true,
@@ -225,6 +192,25 @@ export default function DomainsPage() {
           </Button>
         }
       />
+      {error && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={refetch}>
+              {t("retry")}
+            </Button>
+          }
+        >
+          {t(error === "sessionExpired" ? "sessionExpired" : "loadFailed")}
+        </Alert>
+      )}
+      {loading && (
+        <CircularProgress
+          size={24}
+          sx={{ position: "absolute", top: 16, right: 16 }}
+        />
+      )}
       <DataTable
         columns={columns}
         data={domains}

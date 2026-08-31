@@ -66,7 +66,7 @@ export const env = {
   OTEL_SERVICE_NAME: getEnv(
     "NEXT_PUBLIC_OTEL_SERVICE_NAME",
     process.env.NEXT_PUBLIC_OTEL_SERVICE_NAME,
-    { fallback: "checkpoint-web" },
+    { fallback: "omnimail-web" },
   ),
   OTEL_SAMPLE_RATE: getEnv(
     "NEXT_PUBLIC_OTEL_SAMPLE_RATE",
@@ -85,13 +85,6 @@ export const env = {
   OMNIXYS_TENANT_ID: getEnv(
     "NEXT_PUBLIC_OMNIXYS_TENANT_ID",
     process.env.NEXT_PUBLIC_OMNIXYS_TENANT_ID,
-    {
-      required: true,
-    },
-  ),
-  OMNIMAIL_SERVICE_TOKEN: getEnv(
-    "NEXT_PUBLIC_OMNIMAIL_SERVICE_TOKEN",
-    process.env.NEXT_PUBLIC_OMNIMAIL_SERVICE_TOKEN,
     {
       required: true,
     },
