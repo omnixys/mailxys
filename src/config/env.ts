@@ -87,13 +87,13 @@ export const env = {
     process.env.NEXT_PUBLIC_OMNIXYS_TENANT_ID,
     {
       required: true,
-    }
+    },
   ),
   OMNIMAIL_SERVICE_TOKEN: getEnv(
     "NEXT_PUBLIC_OMNIMAIL_SERVICE_TOKEN",
     process.env.NEXT_PUBLIC_OMNIMAIL_SERVICE_TOKEN,
     {
       required: true,
-    }
-  )
+    },
+  ),
 } as const;

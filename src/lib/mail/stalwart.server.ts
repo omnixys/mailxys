@@ -1,10 +1,10 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { env } from "@/config/env.server";
 import {
   classifyMailTokenFailure,
   type MailErrorCode,
 } from "@/lib/mail/errors";
-import { env } from "@/config/env.server";
 
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
@@ -39,7 +39,7 @@ export async function mailAccessToken(requestId: string): Promise<string> {
     );
   }
   try {
-    console.log('env.OMNIMAIL_SERVICE_TOKEN: ' + env.OMNIMAIL_SERVICE_TOKEN,)
+    console.log(`env.OMNIMAIL_SERVICE_TOKEN: ${env.OMNIMAIL_SERVICE_TOKEN}`);
     const res = await fetch(required("MAIL_TOKEN_URL"), {
       method: "POST",
       headers: {
