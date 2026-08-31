@@ -43,7 +43,7 @@ export const env = {
   CHECKPOINT_BASE_PATH: getEnv(
     "NEXT_PUBLIC_CHECKPOINT_BASE_PATH",
     process.env.NEXT_PUBLIC_CHECKPOINT_BASE_PATH,
-    { fallback: "/", transform: toBasePath },
+    { required: true, transform: toHttpUrl, },
   ),
   APP_URL,
   BASE_URL: getEnv("NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL, {
