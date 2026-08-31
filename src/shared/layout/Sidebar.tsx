@@ -11,6 +11,8 @@ import {
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { getAuthenticatedUserProfile } from "@/auth/profile";
+import { useAuth } from "@/auth/providers/AuthProvider";
 import { usePermissions } from "@/auth/providers/PermissionProvider";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { navItems } from "@/shared/navigation/navItems";
@@ -24,8 +26,10 @@ export default function Sidebar() {
   const theme = useTheme();
   const pathname = usePathname();
   const { isCollapsed } = useSidebarStore();
+  const { user } = useAuth();
   const { hasAnyPermission } = usePermissions();
   const t = useTypedTranslations("nav");
+  const profile = getAuthenticatedUserProfile(user);
 
   const filteredSections = useMemo(() => {
     return navItems
@@ -174,7 +178,7 @@ export default function Sidebar() {
             fontWeight: 600,
           }}
         >
-          AU
+          {profile?.initials}
         </Avatar>
         {!isCollapsed && (
           <Box sx={{ minWidth: 0 }}>
@@ -187,7 +191,7 @@ export default function Sidebar() {
                 whiteSpace: "nowrap",
               }}
             >
-              Admin User
+              {profile?.name}
             </Typography>
             <Typography
               variant="caption"
@@ -199,7 +203,7 @@ export default function Sidebar() {
                 display: "block",
               }}
             >
-              admin@omnixys.com
+              {profile?.email}
             </Typography>
           </Box>
         )}

@@ -23,17 +23,17 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { getAuthenticatedUserProfile } from "@/auth/profile";
 import { useAuth } from "@/auth/providers/AuthProvider";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useThemeMode } from "@/providers/ThemeModeProvider";
-import { getSettingsProfile } from "./profile";
 
 export default function SettingsPage() {
   const t = useTypedTranslations("settings");
   const theme = useTheme();
   const { mode, toggleMode } = useThemeMode();
   const { user } = useAuth();
-  const profile = getSettingsProfile(user);
+  const profile = getAuthenticatedUserProfile(user);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emailDigest, setEmailDigest] = useState("daily");
   const [language, setLanguage] = useState("en");

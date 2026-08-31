@@ -24,6 +24,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
+import { getAuthenticatedUserProfile } from "@/auth/profile";
 import { useAuth } from "@/auth/providers/AuthProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
@@ -35,6 +36,7 @@ export default function Header() {
   const { mode, toggleMode } = useThemeMode();
   const { open } = useCommandPaletteStore();
   const { user, logout } = useAuth();
+  const profile = getAuthenticatedUserProfile(user);
   const t = useTypedTranslations("shared");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -144,10 +146,7 @@ export default function Header() {
               fontWeight: 600,
             }}
           >
-            {user?.name
-              ?.split(" ")
-              .map((n) => n[0])
-              .join("") || "U"}
+            {profile?.initials}
           </Avatar>
         </Box>
 

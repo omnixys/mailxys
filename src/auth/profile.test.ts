@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getSettingsProfile } from "./profile";
+import { getAuthenticatedUserProfile } from "./profile";
 
-describe("getSettingsProfile", () => {
-  it("maps the authenticated user's profile instead of default admin values", () => {
-    const profile = getSettingsProfile({
+describe("getAuthenticatedUserProfile", () => {
+  it("maps the authenticated user's profile without default admin values", () => {
+    const profile = getAuthenticatedUserProfile({
       name: "Ada Lovelace",
       email: "ada@example.com",
     });
@@ -18,6 +18,6 @@ describe("getSettingsProfile", () => {
   });
 
   it("does not create placeholder user data while authentication is unavailable", () => {
-    expect(getSettingsProfile(null)).toBeNull();
+    expect(getAuthenticatedUserProfile(null)).toBeNull();
   });
 });

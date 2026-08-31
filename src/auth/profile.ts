@@ -1,14 +1,14 @@
 import type { User } from "@/auth/types/auth";
 
-interface SettingsProfile {
+interface AuthenticatedUserProfile {
   name: string;
   email: string;
   initials: string;
 }
 
-export function getSettingsProfile(
+export function getAuthenticatedUserProfile(
   user: Pick<User, "name" | "email"> | null,
-): SettingsProfile | null {
+): AuthenticatedUserProfile | null {
   if (!user) return null;
 
   const name = user.name.trim();
