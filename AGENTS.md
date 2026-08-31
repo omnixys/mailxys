@@ -78,7 +78,9 @@ pnpm lint && pnpm exec tsc --noEmit && pnpm build
 
 ## Tests
 
-none defined
+```bash
+pnpm test
+```
 
 ## Repository-Specific Rules
 

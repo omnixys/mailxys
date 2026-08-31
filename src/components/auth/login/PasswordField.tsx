@@ -4,6 +4,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   FormControl,
+  FormHelperText,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -29,10 +30,12 @@ export default function PasswordField({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <FormControl fullWidth variant="outlined" size="small">
+    <FormControl fullWidth variant="outlined" size="small" error={!!error}>
       <InputLabel htmlFor="password-field">{t("login.password")}</InputLabel>
       <OutlinedInput
         id="password-field"
+        name="password"
+        required
         type={showPassword ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -57,6 +60,7 @@ export default function PasswordField({
           </InputAdornment>
         }
       />
+      {error && <FormHelperText>{error}</FormHelperText>}
     </FormControl>
   );
 }

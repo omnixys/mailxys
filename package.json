@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "biome check",
     "format": "biome format --write",
     "codegen": "graphql-codegen",
@@ -51,6 +53,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.185.1",
     "babel-plugin-react-compiler": "1.0.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

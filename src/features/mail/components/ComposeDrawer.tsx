@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { jmapClient } from "@/api/jmap/jmapClient";
+import { mailErrorTranslationKey } from "@/api/jmap/mailErrorTranslation";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { useMailStore } from "../store/useMailStore";
 
@@ -59,8 +60,13 @@ export function ComposeDrawer() {
       closeCompose();
       useMailStore.getState().requestRefresh();
     } catch (error) {
+      const translationKey = mailErrorTranslationKey(error);
       setSendError(
-        error instanceof Error ? error.message : "Email could not be sent",
+        translationKey
+          ? t(translationKey)
+          : error instanceof Error
+            ? error.message
+            : t("failedToSend"),
       );
     } finally {
       setSending(false);

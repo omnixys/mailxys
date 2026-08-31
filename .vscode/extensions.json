@@ -2,7 +2,8 @@
   "recommendations": [
     "biomejs.biome",
     "esbenp.prettier-vscode",
-    "GraphQL.vscode-graphql"
+    "GraphQL.vscode-graphql",
+    "vitest.explorer"
   ],
   "unwantedRecommendations": []
 }

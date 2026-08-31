@@ -10,43 +10,64 @@ import {
   sendMessage,
 } from "@/lib/mail/stalwart.server";
 
-const _MAIL_SEND_ROLES = ["ADMIN", "SUPREME", "ELITE", "BASIC", "USER"];
-
-async function context() {
-  const accessToken = await mailAccessToken();
+async function context(requestId: string) {
+  const accessToken = await mailAccessToken(requestId);
   return {
-    accountId: await ensureMailAccount(accessToken),
+    accessToken,
+    accountId: await ensureMailAccount(accessToken, requestId),
   };
 }
 
-function failure(error: unknown) {
+function requestIdFor(request: NextRequest): string {
+  const incoming = request.headers.get("x-request-id")?.trim();
+  return incoming && incoming.length <= 128 ? incoming : crypto.randomUUID();
+}
+
+function failure(error: unknown, requestId: string) {
   const status = error instanceof MailApiError ? error.status : 500;
+  const code = error instanceof MailApiError ? error.code : "INTERNAL_ERROR";
   const message =
-    error instanceof Error ? error.message : "Mail request failed";
-  console.error("[Mail API]", { status, message });
-  return NextResponse.json({ error: message }, { status });
+    error instanceof MailApiError ? error.message : "Mail request failed";
+  console.error("[Mail API]", { status, code, message, requestId });
+  return NextResponse.json(
+    { error: message, code, requestId },
+    { status, headers: { "x-request-id": requestId } },
+  );
 }
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
+  const requestId = requestIdFor(request);
   try {
-    const { accountId } = await context();
     const path = (await params).path.join("/");
     if (path === "mailboxes") {
-      const mailboxes = await getMailboxes(accountId);
+      const { accessToken, accountId } = await context(requestId);
+      const mailboxes = await getMailboxes(accessToken, accountId, requestId);
       return NextResponse.json(mailboxes);
     }
     if (path === "messages") {
       const mailboxId = request.nextUrl.searchParams.get("mailboxId");
-      if (!mailboxId) throw new MailApiError(422, "mailboxId is required");
-      const messages = await getMessages(accountId, mailboxId);
+      if (!mailboxId) {
+        throw new MailApiError(422, "INVALID_REQUEST", "mailboxId is required");
+      }
+      const { accessToken, accountId } = await context(requestId);
+      const messages = await getMessages(
+        accessToken,
+        accountId,
+        mailboxId,
+        requestId,
+      );
       return NextResponse.json(messages);
     }
-    throw new MailApiError(404, "Mail operation not found");
+    throw new MailApiError(
+      404,
+      "MAIL_OPERATION_NOT_FOUND",
+      "Mail operation not found",
+    );
   } catch (error) {
-    return failure(error);
+    return failure(error, requestId);
   }
 }
 
@@ -54,18 +75,33 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
+  const requestId = requestIdFor(request);
   try {
-    const { accountId } = await context();
     const parts = (await params).path;
-    if (parts[0] !== "messages" || !parts[1])
-      throw new MailApiError(404, "Mail operation not found");
-    const body = (await request.json()) as { read?: boolean };
-    if (typeof body.read !== "boolean")
-      throw new MailApiError(422, "read must be boolean");
-    await markMessageRead(accountId, parts[1], body.read);
+    if (parts[0] !== "messages" || !parts[1]) {
+      throw new MailApiError(
+        404,
+        "MAIL_OPERATION_NOT_FOUND",
+        "Mail operation not found",
+      );
+    }
+    const body = (await request.json().catch(() => null)) as {
+      read?: boolean;
+    } | null;
+    if (!body || typeof body.read !== "boolean") {
+      throw new MailApiError(422, "INVALID_REQUEST", "read must be boolean");
+    }
+    const { accessToken, accountId } = await context(requestId);
+    await markMessageRead(
+      accessToken,
+      accountId,
+      parts[1],
+      body.read,
+      requestId,
+    );
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    return failure(error);
+    return failure(error, requestId);
   }
 }
 
@@ -73,16 +109,31 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
+  const requestId = requestIdFor(request);
   try {
-    const { accountId } = await context();
     const path = (await params).path.join("/");
-    if (path !== "send")
-      throw new MailApiError(404, "Mail operation not found");
-    const body = (await request.json()) as SendMailInput;
-    return NextResponse.json(await sendMessage(accountId, body), {
-      status: 201,
-    });
+    if (path !== "send") {
+      throw new MailApiError(
+        404,
+        "MAIL_OPERATION_NOT_FOUND",
+        "Mail operation not found",
+      );
+    }
+    const body = (await request
+      .json()
+      .catch(() => null)) as SendMailInput | null;
+    if (
+      !body ||
+      typeof body.to !== "string" ||
+      typeof body.subject !== "string" ||
+      typeof body.body !== "string"
+    ) {
+      throw new MailApiError(400, "INVALID_REQUEST", "Invalid mail request");
+    }
+    const { accessToken, accountId } = await context(requestId);
+    const result = await sendMessage(accessToken, accountId, body, requestId);
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    return failure(error);
+    return failure(error, requestId);
   }
 }

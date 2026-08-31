@@ -82,5 +82,8 @@ export const env = {
     process.env.NEXT_PUBLIC_AUTH_API_BASE_URL,
     { fallback: "http://localhost:8000" },
   ),
-  OMNIXYS_TENANT_ID: getEnv("NEXT_PUBLIC_OMNIXYS_TENANT_ID", process.env.NEXT_PUBLIC_OMNIXYS_TENANT_ID),
+  OMNIXYS_TENANT_ID: getEnv(
+    "NEXT_PUBLIC_OMNIXYS_TENANT_ID",
+    process.env.NEXT_PUBLIC_OMNIXYS_TENANT_ID,
+  ),
 } as const;

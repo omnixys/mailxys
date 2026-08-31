@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/providers/AuthProvider";
 import { useTypedTranslations } from "@/i18n/useTypedTranslations";
 import { AuthEventsBus } from "@/lib/auth/AuthManager";
+import { validateLoginInput } from "@/lib/auth/login-validation";
 import BrandingHeader from "./BrandingHeader";
 import PasswordField from "./PasswordField";
 import SubmitButton from "./SubmitButton";
@@ -20,6 +21,10 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -29,15 +34,29 @@ export default function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    const validated = validateLoginInput({ username, password });
+    if (!validated.success) {
+      setFieldErrors({
+        ...(validated.fields.username
+          ? { username: t("login.usernameRequired") }
+          : {}),
+        ...(validated.fields.password
+          ? { password: t("login.passwordRequired") }
+          : {}),
+      });
+      return;
+    }
+
+    setFieldErrors({});
+    setLoading(true);
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(validated.data),
       });
 
       const data = (await res.json()) as {
@@ -68,14 +87,28 @@ export default function LoginForm() {
       <Stack spacing={2.5}>
         <UsernameField
           value={username}
-          onChange={setUsername}
-          error={undefined}
+          onChange={(value) => {
+            setUsername(value);
+            if (fieldErrors.username) {
+              setFieldErrors((current) =>
+                current.password ? { password: current.password } : {},
+              );
+            }
+          }}
+          error={fieldErrors.username}
           disabled={loading}
         />
         <PasswordField
           value={password}
-          onChange={setPassword}
-          error={undefined}
+          onChange={(value) => {
+            setPassword(value);
+            if (fieldErrors.password) {
+              setFieldErrors((current) =>
+                current.username ? { username: current.username } : {},
+              );
+            }
+          }}
+          error={fieldErrors.password}
           disabled={loading}
         />
         <SubmitButton loading={loading} disabled={loading} />

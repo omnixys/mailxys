@@ -1,4 +1,5 @@
 import type { JmapEmail, JmapMailbox } from "@/features/mail/types";
+import type { MailErrorCode } from "@/lib/mail/errors";
 
 export interface JmapApiRequest {
   using: string[];
@@ -13,7 +14,9 @@ export interface JmapApiResponse {
 export class MailClientError extends Error {
   constructor(
     readonly status: number,
+    readonly code: MailErrorCode | "UNKNOWN",
     message: string,
+    readonly requestId?: string,
   ) {
     super(message);
   }
@@ -28,10 +31,14 @@ async function mailFetch<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as {
       error?: string;
+      code?: MailErrorCode;
+      requestId?: string;
     };
     throw new MailClientError(
       response.status,
+      payload.code ?? "UNKNOWN",
       payload.error ?? `Mail request failed (${response.status})`,
+      payload.requestId,
     );
   }
   if (response.status === 204) return undefined as T;

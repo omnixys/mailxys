@@ -15,7 +15,7 @@
 - Database: n/a; Migrations: n/a
 - API: GraphQL (Apollo Client + graphql-codegen)
 - Messaging: n/a
-- Tests: none defined
+- Tests: Vitest (`pnpm test`)
 
 
 ## Workflow
@@ -37,7 +37,7 @@
 
 ### 3. Write tests
 
-  - No test suite is defined in this repository; record as NOT RUN with a reason.
+  - Add or update Vitest tests for changed behavior and regressions.
 
 
 ### 4. Validate
@@ -48,6 +48,7 @@ Run each applicable check and record the result as `PASS`, `FAIL`, `PRE-EXISTING
 FAILURE`, or `NOT RUN` (with a reason). Never convert `NOT RUN` into `PASS`.
 
   - `pnpm install --frozen-lockfile`
+  - `pnpm test`
   - `pnpm exec biome check .  (check-only; never run `biome check --write` against existing work)`
   - `pnpm exec biome check .  (check-only)`
   - `pnpm exec tsc --noEmit`

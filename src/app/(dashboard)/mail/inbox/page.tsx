@@ -1,8 +1,9 @@
 "use client";
 
-import { Alert, Box, CircularProgress, useTheme } from "@mui/material";
-import { useEffect } from "react";
+import { Alert, Box, Button, CircularProgress, useTheme } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
 import { jmapClient, MailClientError } from "@/api/jmap/jmapClient";
+import { mailErrorTranslationKey } from "@/api/jmap/mailErrorTranslation";
 import { ComposeDrawer } from "@/features/mail/components/ComposeDrawer";
 import { MailboxList } from "@/features/mail/components/MailboxList";
 import { MailToolbar } from "@/features/mail/components/MailToolbar";
@@ -22,10 +23,20 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
     setError,
     resetMail,
     refreshVersion,
+    requestRefresh,
     loading,
     error,
   } = useMailStore();
-  const _t = useTypedTranslations("mail");
+  const t = useTypedTranslations("mail");
+  const consecutiveMessageFailures = useRef(0);
+  const [pollingPaused, setPollingPaused] = useState(false);
+
+  const retryMail = () => {
+    consecutiveMessageFailures.current = 0;
+    setPollingPaused(false);
+    setError(null);
+    requestRefresh();
+  };
 
   useEffect(() => {
     void refreshVersion;
@@ -36,9 +47,11 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
       .then((mailboxes) => {
         if (!active) return;
         setMailboxes(mailboxes);
+        const currentSelectedMailboxId =
+          useMailStore.getState().selectedMailboxId;
         if (
-          !selectedMailboxId ||
-          !mailboxes.some(({ id }) => id === selectedMailboxId)
+          !currentSelectedMailboxId ||
+          !mailboxes.some(({ id }) => id === currentSelectedMailboxId)
         ) {
           const inbox =
             mailboxes.find(({ role }) => role === initialRole) ??
@@ -46,18 +59,18 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
             mailboxes[0];
           if (inbox) selectMailbox(inbox.id);
         }
+        setPollingPaused(false);
         setError(null);
       })
       .catch((error: unknown) => {
         if (!active) return;
         if (error instanceof MailClientError && error.status === 401) {
           resetMail();
-          setError("Session expired — please reload the page");
+          setError(t("sessionExpired"));
           return;
         }
-        setError(
-          error instanceof Error ? error.message : "Mailbox loading failed",
-        );
+        const translationKey = mailErrorTranslationKey(error);
+        setError(t(translationKey ?? "mailboxLoadFailed"));
       })
       .finally(() => active && setLoading(false));
     return () => {
@@ -68,21 +81,22 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
     refreshVersion,
     resetMail,
     selectMailbox,
-    selectedMailboxId,
     setError,
     setLoading,
     setMailboxes,
+    t,
   ]);
 
   useEffect(() => {
     void refreshVersion;
-    if (!selectedMailboxId) return;
+    if (!selectedMailboxId || pollingPaused) return;
     let active = true;
     const load = async () => {
       if (document.visibilityState !== "visible") return;
       try {
         const emails = await jmapClient.getMessages(selectedMailboxId);
         if (active) {
+          consecutiveMessageFailures.current = 0;
           setEmails(emails);
           setError(null);
         }
@@ -90,12 +104,23 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
         if (!active) return;
         if (error instanceof MailClientError && error.status === 401) {
           resetMail();
-          setError("Session expired — please reload the page");
+          setPollingPaused(true);
+          setError(t("sessionExpired"));
           return;
         }
-        setError(
-          error instanceof Error ? error.message : "Message loading failed",
-        );
+        if (
+          error instanceof MailClientError &&
+          (error.status === 502 || error.status === 503)
+        ) {
+          consecutiveMessageFailures.current += 1;
+          if (consecutiveMessageFailures.current >= 3) {
+            setPollingPaused(true);
+          }
+        } else {
+          consecutiveMessageFailures.current = 0;
+        }
+        const translationKey = mailErrorTranslationKey(error);
+        setError(t(translationKey ?? "messageLoadFailed"));
       }
     };
     void load();
@@ -106,7 +131,15 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", load);
     };
-  }, [refreshVersion, resetMail, selectedMailboxId, setEmails, setError]);
+  }, [
+    pollingPaused,
+    refreshVersion,
+    resetMail,
+    selectedMailboxId,
+    setEmails,
+    setError,
+    t,
+  ]);
 
   return (
     <Box
@@ -129,6 +162,11 @@ export function MailPage({ initialRole = "inbox" }: { initialRole?: string }) {
         <Alert
           severity="error"
           sx={{ position: "absolute", top: 16, left: "50%", zIndex: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={retryMail}>
+              {t("retry")}
+            </Button>
+          }
         >
           {error}
         </Alert>

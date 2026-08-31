@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { env } from "@/config/env.server";
+import {
+  gatewayLoginFailure,
+  validateLoginInput,
+} from "@/lib/auth/login-validation";
 
 function retryCookieBase(): string {
   const isProd = process.env.NODE_ENV === "production";
@@ -8,21 +12,25 @@ function retryCookieBase(): string {
   return `Path=/; SameSite=${sameSite}; ${secure ? "Secure; " : ""}HttpOnly`;
 }
 
-interface LoginRequest {
-  username: string;
-  password: string;
-}
-
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as LoginRequest;
-  const { username, password } = body;
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Invalid login request" },
+      { status: 400 },
+    );
+  }
 
-  if (!username || !password) {
+  const validated = validateLoginInput(body);
+  if (!validated.success) {
     return NextResponse.json(
       { ok: false, error: "Username and password are required" },
       { status: 400 },
     );
   }
+  const { username, password } = validated.data;
 
   // --- Step 1: GraphQL credentialsLogin ---
   console.log("[Login] GraphQL credentialsLogin");
@@ -57,17 +65,27 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   if (!gatewayResponse.ok) {
     console.error("[Login] Gateway error", { status: gatewayResponse.status });
+    const failure = gatewayLoginFailure(gatewayResponse.status);
     return NextResponse.json(
-      { ok: false, error: "Gateway authentication failed" },
-      { status: 401 },
+      { ok: false, error: failure.message },
+      { status: failure.status },
     );
   }
 
   // Parse gateway response
-  const gatewayBody = (await gatewayResponse.json()) as {
+  let gatewayBody: {
     data?: { credentialsLogin?: Record<string, string> };
     errors?: Array<{ message: string }>;
   };
+  try {
+    gatewayBody = (await gatewayResponse.json()) as typeof gatewayBody;
+  } catch {
+    console.error("[Login] Invalid gateway response");
+    return NextResponse.json(
+      { ok: false, error: "Authentication service is unavailable" },
+      { status: 502 },
+    );
+  }
 
   if (gatewayBody.errors?.length) {
     const firstError = gatewayBody.errors[0];
@@ -75,7 +93,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       message: firstError?.message,
     });
     return NextResponse.json(
-      { ok: false, error: firstError?.message ?? "GraphQL error" },
+      { ok: false, error: "Authentication failed" },
       { status: 401 },
     );
   }
